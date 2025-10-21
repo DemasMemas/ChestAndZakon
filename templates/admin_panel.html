@@ -5,39 +5,97 @@
 {% block content %}
 <h1>Админ-панель</h1>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-    <div>
-        <h2>Новости</h2>
-        <ul>
-            <li><a href="{{ url_for('add_news') }}">Добавить новость</a></li>
-            <li><a href="{{ url_for('news') }}">Просмотр и управление новостями</a></li>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
+    <!-- Блок новостей -->
+    <div style="border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
+        <h2 style="color: #007bff; margin-top: 0;">📰 Новости</h2>
+        <ul style="list-style: none; padding: 0;">
+            <li style="margin-bottom: 10px;">
+                <a href="{{ url_for('add_news') }}" style="display: block; padding: 10px; background: #28a745; color: white; text-decoration: none; border-radius: 3px; text-align: center;">
+                    ✏️ Добавить новость
+                </a>
+            </li>
+            <li style="margin-bottom: 10px;">
+                <a href="{{ url_for('news') }}" style="display: block; padding: 10px; background: #17a2b8; color: white; text-decoration: none; border-radius: 3px; text-align: center;">
+                    📋 Управление новостями ({{ News.query.count() }})
+                </a>
+            </li>
         </ul>
     </div>
 
-    <div>
-        <h2>Мероприятия</h2>
-        <ul>
-            <li><a href="{{ url_for('add_event') }}">Добавить мероприятие</a></li>
-            <li><a href="{{ url_for('events') }}">Просмотр и управление мероприятиями</a></li>
+    <!-- Блок мероприятий -->
+    <div style="border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
+        <h2 style="color: #dc3545; margin-top: 0;">🎪 Мероприятия</h2>
+        <ul style="list-style: none; padding: 0;">
+            <li style="margin-bottom: 10px;">
+                <a href="{{ url_for('add_event') }}" style="display: block; padding: 10px; background: #28a745; color: white; text-decoration: none; border-radius: 3px; text-align: center;">
+                    ✏️ Добавить мероприятие
+                </a>
+            </li>
+            <li style="margin-bottom: 10px;">
+                <a href="{{ url_for('events') }}" style="display: block; padding: 10px; background: #17a2b8; color: white; text-decoration: none; border-radius: 3px; text-align: center;">
+                    📋 Управление мероприятиями ({{ Event.query.count() }})
+                </a>
+            </li>
         </ul>
     </div>
 </div>
 
 {% if current_user.is_admin %}
-<div style="margin-top: 30px;">
-    <h2>Управление пользователями</h2>
-    <ul>
-        <li><a href="{{ url_for('register') }}">Добавить пользователя</a></li>
-    </ul>
+<!-- Управление пользователями -->
+<div style="margin-top: 30px; border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
+    <h2 style="color: #ffc107; margin-top: 0;">👥 Управление пользователями</h2>
+    <a href="{{ url_for('register') }}" style="display: inline-block; padding: 10px 20px; background: #6f42c1; color: white; text-decoration: none; border-radius: 3px;">
+        👤 Добавить пользователя
+    </a>
 </div>
 {% endif %}
 
 <!-- Статистика -->
-<div style="margin-top: 30px; padding: 15px; background: #f5f5f5;">
-    <h3>Статистика</h3>
-    <p>Всего новостей: {{ News.query.count() }}</p>
-    <p>Всего комментариев: {{ Comment.query.count() }}</p>
-    <p>Всего мероприятий: {{ Event.query.count() }}</p>
-    <p>Предстоящих мероприятий: {{ Event.query.filter(Event.event_date >= now).count() }}</p>
+<div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 5px;">
+    <h3 style="margin-top: 0;">📊 Статистика</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        <div style="text-align: center; padding: 15px; background: white; border-radius: 5px;">
+            <div style="font-size: 24px; font-weight: bold; color: #007bff;">{{ News.query.count() }}</div>
+            <div>Новостей</div>
+        </div>
+        <div style="text-align: center; padding: 15px; background: white; border-radius: 5px;">
+            <div style="font-size: 24px; font-weight: bold; color: #dc3545;">{{ Event.query.count() }}</div>
+            <div>Мероприятий</div>
+        </div>
+        <div style="text-align: center; padding: 15px; background: white; border-radius: 5px;">
+            <div style="font-size: 24px; font-weight: bold; color: #28a745;">{{ Comment.query.count() }}</div>
+            <div>Комментариев</div>
+        </div>
+        <div style="text-align: center; padding: 15px; background: white; border-radius: 5px;">
+            <div style="font-size: 24px; font-weight: bold; color: #6f42c1;">{{ Event.query.filter(Event.event_date >= now).count() }}</div>
+            <div>Предстоящих мероприятий</div>
+        </div>
+    </div>
 </div>
+
+<!-- Быстрые действия -->
+<div style="margin-top: 30px;">
+    <h3>⚡ Быстрые действия</h3>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="{{ url_for('add_news') }}" class="quick-action">📝 Новая новость</a>
+        <a href="{{ url_for('add_event') }}" class="quick-action">🎪 Новое мероприятие</a>
+        <a href="{{ url_for('news') }}" class="quick-action">📰 Все новости</a>
+        <a href="{{ url_for('events') }}" class="quick-action">📅 Все мероприятия</a>
+    </div>
+</div>
+
+<style>
+.quick-action {
+    padding: 8px 15px;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 14px;
+}
+.quick-action:hover {
+    background: #5a6268;
+}
+</style>
 {% endblock %}

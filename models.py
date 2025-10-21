@@ -9,9 +9,27 @@ class News(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    image_path = db.Column(db.String(200))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     comments = db.relationship('Comment', backref='news', lazy=True, cascade='all, delete-orphan')
+    images = db.relationship('NewsImage', backref='news', lazy=True, cascade='all, delete-orphan')
+    videos = db.relationship('NewsVideo', backref='news', lazy=True, cascade='all, delete-orphan')
+
+class NewsImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    news_id = db.Column(db.Integer, db.ForeignKey('news.id'), nullable=False)
+    image_path = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    order = db.Column(db.Integer, default=0)  # для порядка отображения
+
+class NewsVideo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    news_id = db.Column(db.Integer, db.ForeignKey('news.id'), nullable=False)
+    video_url = db.Column(db.String(500))  # Для внешних ссылок
+    video_path = db.Column(db.String(500))  # Для загруженных файлов
+    video_type = db.Column(db.String(20), default='youtube')  # youtube, vimeo, uploaded
+    title = db.Column(db.String(100))  # Название видео
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    order = db.Column(db.Integer, default=0)
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)

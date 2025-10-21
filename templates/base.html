@@ -50,5 +50,18 @@
     <div class="container">
         {% block content %}{% endblock %}
     </div>
+    <script>
+    // Подтверждение для всех ссылок удаления
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteLinks = document.querySelectorAll('a[href*="/delete/"]');
+        deleteLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+    </script>
 </body>
 </html>

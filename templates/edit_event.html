@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Редактировать мероприятие{% endblock %}
+
+{% block content %}
+<h1>Редактировать мероприятие</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    <div>
+        <label for="title">Название мероприятия:</label>
+        <input type="text" id="title" name="title" value="{{ event.title }}" required style="width: 100%; padding: 8px; margin: 5px 0;">
+    </div>
+    
+    <div>
+        <label for="description">Описание:</label>
+        <textarea id="description" name="description" rows="6" required style="width: 100%; padding: 8px; margin: 5px 0;">{{ event.description }}</textarea>
+    </div>
+    
+    <div>
+        <label for="event_date">Дата и время:</label>
+        <input type="datetime-local" id="event_date" name="event_date" value="{{ event_date_formatted }}" required style="padding: 8px; margin: 5px 0;">
+    </div>
+    
+    <div>
+        <label for="location">Место проведения:</label>
+        <input type="text" id="location" name="location" value="{{ event.location or '' }}" style="width: 100%; padding: 8px; margin: 5px 0;">
+    </div>
+    
+    <!-- Текущее изображение -->
+    {% if event.image_path %}
+    <div style="margin: 20px 0;">
+        <label>Текущее изображение:</label>
+        <div>
+            <img src="{{ url_for('static', filename=event.image_path) }}" 
+                 alt="{{ event.title }}" 
+                 style="max-width: 300px; height: auto; margin: 10px 0;">
+        </div>
+    </div>
+    {% endif %}
+    
+    <div>
+        <label for="image">Новое изображение (необязательно):</label>
+        <input type="file" id="image" name="image" accept="image/*">
+        <small>Если загрузите новое изображение, оно заменит текущее</small>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <button type="submit" style="padding: 10px 20px; background: #28a745; color: white; border: none;">Сохранить изменения</button>
+        <a href="{{ url_for('event_detail', event_id=event.id) }}" style="margin-left: 15px; padding: 10px 20px; background: #6c757d; color: white; text-decoration: none;">Отмена</a>
+    </div>
+</form>
+
+<a href="{{ url_for('admin_panel') }}">← Назад в админ-панель</a>
+{% endblock %}

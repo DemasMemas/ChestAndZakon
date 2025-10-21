@@ -3,47 +3,136 @@
 {% block title %}{{ event.title }}{% endblock %}
 
 {% block content %}
-<!-- Кнопка удаления мероприятия (только для админов) -->
+<!-- Кнопки управления (только для админов) -->
 {% if current_user.is_authenticated and current_user.is_admin %}
-<div style="margin-bottom: 20px; text-align: right;">
-    <a href="{{ url_for('delete_event', event_id=event.id) }}"
-       onclick="return confirm('Удалить это мероприятие?')"
-       style="color: #ff4444; padding: 5px 10px; border: 1px solid #ff4444; text-decoration: none;">
-       Удалить мероприятие
-    </a>
+<div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #007bff;">
+    <div style="display: flex; gap: 15px; align-items: center;">
+        <span style="font-weight: bold;">Управление мероприятием:</span>
+        <a href="{{ url_for('edit_event', event_id=event.id) }}"
+           style="padding: 8px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 3px;">
+           ✏️ Редактировать
+        </a>
+        <a href="{{ url_for('delete_event', event_id=event.id) }}"
+           onclick="return confirm('Удалить это мероприятие?')"
+           style="padding: 8px 15px; background: #dc3545; color: white; text-decoration: none; border-radius: 3px;">
+           🗑️ Удалить
+        </a>
+    </div>
 </div>
 {% endif %}
 
 <article>
     <h1>{{ event.title }}</h1>
-    
-    <div style="background: #f5f5f5; padding: 15px; margin: 20px 0; border-radius: 5px;">
-        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+
+    <!-- Блок с основной информацией -->
+    <div style="background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
             <div>
-                <strong>Дата и время:</strong><br>
-                {{ event.event_date.strftime('%d.%m.%Y в %H:%M') }}
+                <strong style="display: block; margin-bottom: 5px;">📅 Дата и время:</strong>
+                <span>{{ event.event_date.strftime('%d.%m.%Y в %H:%M') }}</span>
             </div>
             {% if event.location %}
             <div>
-                <strong>Место:</strong><br>
-                {{ event.location }}
+                <strong style="display: block; margin-bottom: 5px;">📍 Место:</strong>
+                <span>{{ event.location }}</span>
             </div>
             {% endif %}
+            <div>
+                <strong style="display: block; margin-bottom: 5px;">🕒 Опубликовано:</strong>
+                <span>{{ event.created_at.strftime('%d.%m.%Y') }}</span>
+            </div>
         </div>
     </div>
-    
+
+    <!-- Изображение мероприятия -->
     {% if event.image_path %}
-    <img src="{{ url_for('static', filename=event.image_path) }}" alt="{{ event.title }}" style="max-width: 100%; height: auto; margin-bottom: 20px;">
+    <div style="text-align: center; margin: 20px 0;">
+        <img src="{{ url_for('static', filename=event.image_path) }}"
+             alt="{{ event.title }}"
+             style="max-width: 100%; max-height: 500px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    </div>
     {% endif %}
-    
-    <div style="line-height: 1.6;">
-        {{ event.description|replace('\n', '<br>')|safe }}
+
+    <!-- Описание мероприятия -->
+    <div style="margin-top: 30px; line-height: 1.6; font-size: 16px;">
+        <h3>Описание мероприятия</h3>
+        <div style="background: white; padding: 20px; border-radius: 5px; border: 1px solid #eee;">
+            {{ event.description|replace('\n', '<br>')|safe }}
+        </div>
     </div>
 </article>
 
-<div style="margin-top: 30px;">
-    <a href="{{ url_for('events') }}">← Все мероприятия</a>
-    &nbsp;|&nbsp;
-    <a href="{{ url_for('admin_panel') }}">Админ-панель</a>
+<!-- Навигация -->
+<div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <a href="{{ url_for('events') }}" style="color: #007bff; text-decoration: none;">
+            ← Вернуться ко всем мероприятиям
+        </a>
+
+        {% if current_user.is_authenticated and current_user.is_admin %}
+        <div>
+            <a href="{{ url_for('admin_panel') }}" style="color: #6c757d; text-decoration: none; margin-right: 15px;">
+                Админ-панель
+            </a>
+            <a href="{{ url_for('add_event') }}" style="color: #28a745; text-decoration: none;">
+                ➕ Добавить мероприятие
+            </a>
+        </div>
+        {% endif %}
+    </div>
 </div>
+
+<!-- Модальное окно для подтверждения удаления (улучшенное) -->
+<div id="deleteModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div style="background-color: white; margin: 15% auto; padding: 20px; border-radius: 5px; width: 80%; max-width: 500px;">
+        <h3>Подтверждение удаления</h3>
+        <p>Вы уверены, что хотите удалить это мероприятие? Это действие нельзя отменить.</p>
+        <div style="text-align: right; margin-top: 20px;">
+            <button onclick="closeDeleteModal()" style="padding: 8px 15px; background: #6c757d; color: white; border: none; border-radius: 3px; margin-right: 10px;">
+                Отмена
+            </button>
+            <button id="confirmDelete" style="padding: 8px 15px; background: #dc3545; color: white; border: none; border-radius: 3px;">
+                Удалить
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Улучшенная функция подтверждения удаления
+function confirmDelete(eventId) {
+    const modal = document.getElementById('deleteModal');
+    const confirmBtn = document.getElementById('confirmDelete');
+
+    modal.style.display = 'block';
+
+    confirmBtn.onclick = function() {
+        window.location.href = '/admin/event/delete/' + eventId;
+    };
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+}
+
+// Закрытие модального окна при клике вне его
+window.onclick = function(event) {
+    const modal = document.getElementById('deleteModal');
+    if (event.target === modal) {
+        closeDeleteModal();
+    }
+}
+
+// Обновляем все ссылки удаления для использования модального окна
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteLinks = document.querySelectorAll('a[href*="/admin/event/delete/"]');
+    deleteLinks.forEach(link => {
+        const eventId = link.href.split('/').pop();
+        link.onclick = function(e) {
+            e.preventDefault();
+            confirmDelete(eventId);
+        };
+    });
+});
+</script>
 {% endblock %}

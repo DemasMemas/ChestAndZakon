@@ -11,23 +11,77 @@
         <h2><a href="{{ url_for('news_detail', news_id=news.id) }}">{{ news.title }}</a></h2>
         <p><small>Опубликовано: {{ news.created_at.strftime('%d.%m.%Y в %H:%M') }}</small></p>
 
-        {% if news.image_path %}
-        <img src="{{ url_for('static', filename=news.image_path) }}" alt="{{ news.title }}" style="max-width: 300px; height: auto;">
+        <!-- Показываем только первые 3 изображения -->
+        {% if news.images %}
+        <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+            {% for image in news.images[:3] %}
+            <img src="{{ url_for('static', filename=image.image_path) }}"
+                 alt="{{ news.title }}"
+                 style="max-width: 150px; height: 100px; object-fit: cover; border-radius: 5px;">
+            {% endfor %}
+            {% if news.images|length > 3 %}
+            <div style="width: 150px; height: 100px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 5px;">
+                <span style="color: #666;">+{{ news.images|length - 3 }} фото</span>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Показываем иконку если есть видео -->
+        {% if news.videos %}
+        <div style="margin: 5px 0;">
+            <small>📹 {{ news.videos|length }} видео</small>
+        </div>
         {% endif %}
 
         <p>{{ news.content[:200] }}{% if news.content|length > 200 %}...{% endif %}</p>
         <a href="{{ url_for('news_detail', news_id=news.id) }}">Читать далее →</a>
 
-        <!-- Кнопка удаления новости (только для админов) -->
+        <!-- ЕДИНСТВЕННЫЙ блок кнопок управления для админов -->
         {% if current_user.is_authenticated and current_user.is_admin %}
-        <div style="margin-top: 10px;">
+        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
+            <a href="{{ url_for('edit_news', news_id=news.id) }}"
+               style="color: #007bff; font-size: 0.9em; margin-right: 15px;">✏️ Редактировать</a>
             <a href="{{ url_for('delete_news', news_id=news.id) }}"
-               onclick="return confirm('Удалить эту новость? Все комментарии также будут удалены.')"
-               style="color: #ff4444; font-size: 0.9em;">Удалить новость</a>
+               onclick="return confirm('Удалить эту новость? Все комментарии и медиафайлы также будут удалены.')"
+               style="color: #ff4444; font-size: 0.9em;">🗑️ Удалить</a>
         </div>
         {% endif %}
     </article>
     {% endfor %}
+
+    <!-- Пагинация -->
+    <div style="display: flex; justify-content: center; margin-top: 30px;">
+        <div style="display: flex; gap: 10px; align-items: center;">
+            {% if pagination.has_prev %}
+                <a href="{{ url_for('news', page=pagination.prev_num) }}"
+                   style="padding: 8px 15px; border: 1px solid #ddd; text-decoration: none;">← Назад</a>
+            {% endif %}
+
+            {% for page_num in pagination.iter_pages(left_edge=2, left_current=2, right_current=2, right_edge=2) %}
+                {% if page_num %}
+                    {% if page_num != pagination.page %}
+                        <a href="{{ url_for('news', page=page_num) }}"
+                           style="padding: 8px 12px; border: 1px solid #ddd; text-decoration: none;">{{ page_num }}</a>
+                    {% else %}
+                        <span style="padding: 8px 12px; border: 1px solid #007bff; background: #007bff; color: white;">{{ page_num }}</span>
+                    {% endif %}
+                {% else %}
+                    <span style="padding: 8px 5px;">...</span>
+                {% endif %}
+            {% endfor %}
+
+            {% if pagination.has_next %}
+                <a href="{{ url_for('news', page=pagination.next_num) }}"
+                   style="padding: 8px 15px; border: 1px solid #ddd; text-decoration: none;">Вперед →</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 10px; color: #666;">
+        Страница {{ pagination.page }} из {{ pagination.pages }}
+    </div>
+
 {% else %}
     <p>Пока нет новостей.</p>
 {% endif %}

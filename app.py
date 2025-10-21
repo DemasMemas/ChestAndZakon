@@ -11,7 +11,8 @@ from config import Config
 app = Flask(__name__)
 app.config.from_object(Config)
 
-from models import db, News, Event, Comment, User
+from models import db, News, Event, Comment, User, NewsVideo, NewsImage
+
 db.init_app(app)
 
 # Настройка Flask-Login
@@ -26,6 +27,7 @@ def load_user(user_id):
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_VIDEO_EXTENSIONS = {'mp4', 'mov', 'avi', 'mkv', 'webm'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -33,6 +35,10 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def allowed_video_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_VIDEO_EXTENSIONS
 
 @app.context_processor
 def inject_models():
@@ -58,12 +64,6 @@ def about():
     return render_template('about.html')
 
 
-@app.route('/news')
-def news():
-    news_list = News.query.order_by(News.created_at.desc()).all()
-    return render_template('news.html', news_list=news_list)
-
-
 @app.route('/news/<int:news_id>', methods=['GET', 'POST'])
 def news_detail(news_id):
     news_item = News.query.get_or_404(news_id)
@@ -78,12 +78,35 @@ def news_detail(news_id):
         db.session.add(comment)
         db.session.commit()
 
+        # Перенаправляем на ту же страницу чтобы избежать повторной отправки формы
         return redirect(url_for('news_detail', news_id=news_id))
 
-    # Получаем комментарии для этой новости
-    comments = Comment.query.filter_by(news_id=news_id).order_by(Comment.created_at.desc()).all()
+    # Если метод GET, отображаем страницу с комментариями
+    page = request.args.get('page', 1, type=int)
+    comments_per_page = 10
 
-    return render_template('news_detail.html', news_item=news_item, comments=comments)
+    comments_pagination = Comment.query.filter_by(news_id=news_id) \
+        .order_by(Comment.created_at.desc()) \
+        .paginate(page=page, per_page=comments_per_page, error_out=False)
+
+    return render_template('news_detail.html',
+                           news_item=news_item,
+                           comments=comments_pagination.items,
+                           comments_pagination=comments_pagination)
+
+
+@app.route('/news')
+def news():
+    page = request.args.get('page', 1, type=int)
+    per_page = 5  # Количество новостей на странице
+
+    news_pagination = News.query.order_by(News.created_at.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+
+    return render_template('news.html',
+                           news_list=news_pagination.items,
+                           pagination=news_pagination)
 
 
 @app.route('/comment/delete/<int:comment_id>')
@@ -101,13 +124,21 @@ def delete_comment(comment_id):
 
 @app.route('/events')
 def events():
-    # Получаем все мероприятия, отсортированные по дате (ближайшие первыми)
-    events_list = Event.query.filter(Event.event_date >= datetime.now()).order_by(Event.event_date.asc()).all()
+    page = request.args.get('page', 1, type=int)
+    per_page = 5  # Количество мероприятий на странице
 
-    # Прошедшие мероприятия
-    past_events = Event.query.filter(Event.event_date < datetime.now()).order_by(Event.event_date.desc()).all()
+    # Предстоящие мероприятия с пагинацией
+    upcoming_events_query = Event.query.filter(Event.event_date >= datetime.now()).order_by(Event.event_date.asc())
+    upcoming_pagination = upcoming_events_query.paginate(page=page, per_page=per_page, error_out=False)
 
-    return render_template('events.html', events_list=events_list, past_events=past_events)
+    # Прошедшие мероприятия (без пагинации или с ограничением)
+    past_events = Event.query.filter(Event.event_date < datetime.now()).order_by(Event.event_date.desc()).limit(
+        10).all()
+
+    return render_template('events.html',
+                           events_list=upcoming_pagination.items,
+                           past_events=past_events,
+                           pagination=upcoming_pagination)
 
 
 @app.route('/events/<int:event_id>')
@@ -127,6 +158,39 @@ def delete_event(event_id):
     db.session.commit()
     return redirect(url_for('events'))
 
+
+@app.route('/admin/events/edit/<int:event_id>', methods=['GET', 'POST'])
+@login_required
+def edit_event(event_id):
+    if not current_user.is_admin:
+        return "Доступ запрещен", 403
+
+    event = Event.query.get_or_404(event_id)
+
+    if request.method == 'POST':
+        event.title = request.form['title']
+        event.description = request.form['description']
+        event.location = request.form['location']
+
+        # Обработка даты
+        from datetime import datetime
+        event.event_date = datetime.strptime(request.form['event_date'], '%Y-%m-%dT%H:%M')
+
+        # Обработка загрузки изображения
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                event.image_path = f'uploads/{filename}'
+
+        db.session.commit()
+        return redirect(url_for('event_detail', event_id=event.id))
+
+    # Преобразуем дату для HTML input[type="datetime-local"]
+    event_date_formatted = event.event_date.strftime('%Y-%m-%dT%H:%M')
+
+    return render_template('edit_event.html', event=event, event_date_formatted=event_date_formatted)
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
@@ -152,18 +216,67 @@ def add_news():
         title = request.form['title']
         content = request.form['content']
 
-        image_path = None
-        if 'image' in request.files:
-            file = request.files['image']
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                image_path = f'uploads/{filename}'
-
-        news = News(title=title, content=content, image_path=image_path)
+        # Создаем новость
+        news = News(title=title, content=content)
         db.session.add(news)
-        db.session.commit()
+        db.session.flush()  # Получаем ID новости
 
+        # Создаем папку для видео, если её нет
+        video_upload_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'videos')
+        os.makedirs(video_upload_folder, exist_ok=True)
+
+        # Обработка множественных изображений
+        if 'images' in request.files:
+            images = request.files.getlist('images')
+            for i, image in enumerate(images):
+                if image and allowed_file(image.filename):
+                    filename = secure_filename(image.filename)
+                    image_path = f'uploads/{filename}'
+                    image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+                    news_image = NewsImage(
+                        news_id=news.id,
+                        image_path=image_path,
+                        order=i
+                    )
+                    db.session.add(news_image)
+
+        # Обработка множественных видео
+        video_urls = request.form.getlist('video_urls')
+        video_types = request.form.getlist('video_types')
+        video_titles = request.form.getlist('video_titles')
+        video_files = request.files.getlist('video_files')
+
+        for i, (vtype, url, title) in enumerate(zip(video_types, video_urls, video_titles)):
+            if vtype == 'uploaded':
+                # Обработка загруженного видеофайла
+                if i < len(video_files) and video_files[i] and allowed_video_file(video_files[i].filename):
+                    file = video_files[i]
+                    filename = secure_filename(file.filename)
+                    video_path = f'uploads/videos/{filename}'
+                    file.save(os.path.join(video_upload_folder, filename))
+
+                    news_video = NewsVideo(
+                        news_id=news.id,
+                        video_path=video_path,
+                        video_type='uploaded',
+                        title=title or f"Видео {i + 1}",
+                        order=i
+                    )
+                    db.session.add(news_video)
+            else:
+                # Обработка видео по ссылке
+                if url.strip():
+                    news_video = NewsVideo(
+                        news_id=news.id,
+                        video_url=url.strip(),
+                        video_type=vtype,
+                        title=title or f"Видео {i + 1}",
+                        order=i
+                    )
+                    db.session.add(news_video)
+
+        db.session.commit()
         return redirect(url_for('news'))
 
     return render_template('add_news.html')
@@ -172,17 +285,129 @@ def add_news():
 @app.route('/admin/news/delete/<int:news_id>')
 @login_required
 def delete_news(news_id):
-    # Проверяем, что пользователь - администратор
     if not current_user.is_admin:
         return "Доступ запрещен", 403
 
     news = News.query.get_or_404(news_id)
+
+    # Удаляем все комментарии
     Comment.query.filter_by(news_id=news_id).delete()
 
+    # Удаляем все изображения (файлы останутся на сервере - можно добавить их удаление)
+    NewsImage.query.filter_by(news_id=news_id).delete()
+
+    # Удаляем все видео
+    NewsVideo.query.filter_by(news_id=news_id).delete()
+
+    # Удаляем саму новость
     db.session.delete(news)
     db.session.commit()
 
     return redirect(url_for('news'))
+
+
+@app.route('/admin/news/edit/<int:news_id>', methods=['GET', 'POST'])
+@login_required
+def edit_news(news_id):
+    if not current_user.is_admin:
+        return "Доступ запрещен", 403
+
+    news = News.query.get_or_404(news_id)
+
+    if request.method == 'POST':
+        # Обновляем основные данные новости
+        news.title = request.form['title']
+        news.content = request.form['content']
+
+        # Обработка новых изображений (необязательных)
+        if 'images' in request.files:
+            images = request.files.getlist('images')
+            for i, image in enumerate(images):
+                if image and image.filename and allowed_file(
+                        image.filename):  # Проверяем, что файл действительно загружен
+                    filename = secure_filename(image.filename)
+                    image_path = f'uploads/{filename}'
+                    image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+                    news_image = NewsImage(
+                        news_id=news.id,
+                        image_path=image_path,
+                        order=len(news.images) + i
+                    )
+                    db.session.add(news_image)
+
+        # Обработка новых видео (необязательных)
+        video_upload_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'videos')
+        os.makedirs(video_upload_folder, exist_ok=True)
+
+        video_urls = request.form.getlist('video_urls')
+        video_types = request.form.getlist('video_types')
+        video_titles = request.form.getlist('video_titles')
+        video_files = request.files.getlist('video_files')
+
+        for i, (vtype, url, title) in enumerate(zip(video_types, video_urls, video_titles)):
+            # Пропускаем пустые поля
+            if vtype == 'uploaded':
+                # Обработка загруженного видеофайла (если файл действительно загружен)
+                if i < len(video_files) and video_files[i] and video_files[i].filename and allowed_video_file(
+                        video_files[i].filename):
+                    file = video_files[i]
+                    filename = secure_filename(file.filename)
+                    video_path = f'uploads/videos/{filename}'
+                    file.save(os.path.join(video_upload_folder, filename))
+
+                    news_video = NewsVideo(
+                        news_id=news.id,
+                        video_path=video_path,
+                        video_type='uploaded',
+                        title=title or f"Видео {len(news.videos) + i + 1}",
+                        order=len(news.videos) + i
+                    )
+                    db.session.add(news_video)
+            else:
+                # Обработка видео по ссылке (если URL не пустой)
+                if url and url.strip():
+                    news_video = NewsVideo(
+                        news_id=news.id,
+                        video_url=url.strip(),
+                        video_type=vtype,
+                        title=title or f"Видео {len(news.videos) + i + 1}",
+                        order=len(news.videos) + i
+                    )
+                    db.session.add(news_video)
+
+        db.session.commit()
+        return redirect(url_for('news_detail', news_id=news.id))
+
+    return render_template('edit_news.html', news=news)
+
+
+@app.route('/admin/news/image/delete/<int:image_id>')
+@login_required
+def delete_news_image(image_id):
+    if not current_user.is_admin:
+        return "Доступ запрещен", 403
+
+    image = NewsImage.query.get_or_404(image_id)
+    news_id = image.news_id
+    db.session.delete(image)
+    db.session.commit()
+
+    return redirect(url_for('edit_news', news_id=news_id))
+
+
+@app.route('/admin/news/video/delete/<int:video_id>')
+@login_required
+def delete_news_video(video_id):
+    if not current_user.is_admin:
+        return "Доступ запрещен", 403
+
+    video = NewsVideo.query.get_or_404(video_id)
+    news_id = video.news_id
+    db.session.delete(video)
+    db.session.commit()
+
+    return redirect(url_for('edit_news', news_id=news_id))
 
 @app.route('/admin/events/add', methods=['GET', 'POST'])
 @login_required

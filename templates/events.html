@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Мероприятия{% endblock %}
+
+{% block content %}
+<h1>Мероприятия</h1>
+
+<!-- Предстоящие мероприятия -->
+<section style="margin-bottom: 40px;">
+    <h2>Предстоящие мероприятия</h2>
+
+    {% if events_list %}
+        <div style="display: grid; gap: 20px;">
+            {% for event in events_list %}
+            <div style="border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
+                <h3><a href="{{ url_for('event_detail', event_id=event.id) }}">{{ event.title }}</a></h3>
+
+                <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                    <div>
+                        <strong>Когда:</strong><br>
+                        {{ event.event_date.strftime('%d.%m.%Y в %H:%M') }}
+                    </div>
+                    {% if event.location %}
+                    <div>
+                        <strong>Где:</strong><br>
+                        {{ event.location }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if event.image_path %}
+                <img src="{{ url_for('static', filename=event.image_path) }}" alt="{{ event.title }}" style="max-width: 300px; height: auto; margin-bottom: 15px;">
+                {% endif %}
+
+                <p>{{ event.description[:200] }}{% if event.description|length > 200 %}...{% endif %}</p>
+                <a href="{{ url_for('event_detail', event_id=event.id) }}">Подробнее →</a>
+
+                <!-- Кнопка удаления (только для админов) -->
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <div style="margin-top: 10px;">
+                    <a href="{{ url_for('delete_event', event_id=event.id) }}"
+                       onclick="return confirm('Удалить это мероприятие?')"
+                       style="color: #ff4444; font-size: 0.9em;">Удалить</a>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>На данный момент нет запланированных мероприятий.</p>
+    {% endif %}
+</section>
+
+<!-- Прошедшие мероприятия -->
+{% if past_events %}
+<section>
+    <h2>Прошедшие мероприятия</h2>
+    <ul>
+        {% for event in past_events %}
+        <li style="margin-bottom: 10px;">
+            <a href="{{ url_for('event_detail', event_id=event.id) }}">{{ event.title }}</a>
+            - {{ event.event_date.strftime('%d.%m.%Y') }}
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+
+<!-- Ссылка в админку (только для админов) -->
+{% if current_user.is_authenticated and current_user.is_admin %}
+<hr>
+<p><a href="{{ url_for('admin_panel') }}">Админ-панель</a></p>
+{% endif %}
+{% endblock %}

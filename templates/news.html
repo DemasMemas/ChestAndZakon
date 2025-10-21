@@ -1,10 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}Новости{% endblock %}
+
+{% block content %}
+<h1>Новости</h1>
+
+{% if news_list %}
+    {% for news in news_list %}
+    <article style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; position: relative;">
+        <h2><a href="{{ url_for('news_detail', news_id=news.id) }}">{{ news.title }}</a></h2>
+        <p><small>Опубликовано: {{ news.created_at.strftime('%d.%m.%Y в %H:%M') }}</small></p>
+
+        {% if news.image_path %}
+        <img src="{{ url_for('static', filename=news.image_path) }}" alt="{{ news.title }}" style="max-width: 300px; height: auto;">
+        {% endif %}
+
+        <p>{{ news.content[:200] }}{% if news.content|length > 200 %}...{% endif %}</p>
+        <a href="{{ url_for('news_detail', news_id=news.id) }}">Читать далее →</a>
+
+        <!-- Кнопка удаления новости (только для админов) -->
+        {% if current_user.is_authenticated and current_user.is_admin %}
+        <div style="margin-top: 10px;">
+            <a href="{{ url_for('delete_news', news_id=news.id) }}"
+               onclick="return confirm('Удалить эту новость? Все комментарии также будут удалены.')"
+               style="color: #ff4444; font-size: 0.9em;">Удалить новость</a>
+        </div>
+        {% endif %}
+    </article>
+    {% endfor %}
+{% else %}
+    <p>Пока нет новостей.</p>
+{% endif %}
+
+<!-- Ссылка в админку (только для админов) -->
+{% if current_user.is_authenticated and current_user.is_admin %}
+<hr>
+<p><a href="{{ url_for('admin_panel') }}">Админ-панель</a></p>
+{% endif %}
+{% endblock %}

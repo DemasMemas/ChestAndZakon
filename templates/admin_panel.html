@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Админ-панель{% endblock %}
+
+{% block content %}
+<h1>Админ-панель</h1>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <div>
+        <h2>Новости</h2>
+        <ul>
+            <li><a href="{{ url_for('add_news') }}">Добавить новость</a></li>
+            <li><a href="{{ url_for('news') }}">Просмотр и управление новостями</a></li>
+        </ul>
+    </div>
+
+    <div>
+        <h2>Мероприятия</h2>
+        <ul>
+            <li><a href="{{ url_for('add_event') }}">Добавить мероприятие</a></li>
+            <li><a href="{{ url_for('events') }}">Просмотр и управление мероприятиями</a></li>
+        </ul>
+    </div>
+</div>
+
+{% if current_user.is_admin %}
+<div style="margin-top: 30px;">
+    <h2>Управление пользователями</h2>
+    <ul>
+        <li><a href="{{ url_for('register') }}">Добавить пользователя</a></li>
+    </ul>
+</div>
+{% endif %}
+
+<!-- Статистика -->
+<div style="margin-top: 30px; padding: 15px; background: #f5f5f5;">
+    <h3>Статистика</h3>
+    <p>Всего новостей: {{ News.query.count() }}</p>
+    <p>Всего комментариев: {{ Comment.query.count() }}</p>
+    <p>Всего мероприятий: {{ Event.query.count() }}</p>
+    <p>Предстоящих мероприятий: {{ Event.query.filter(Event.event_date >= now).count() }}</p>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block content %}
+<!-- Кнопка удаления мероприятия (только для админов) -->
+{% if current_user.is_authenticated and current_user.is_admin %}
+<div style="margin-bottom: 20px; text-align: right;">
+    <a href="{{ url_for('delete_event', event_id=event.id) }}"
+       onclick="return confirm('Удалить это мероприятие?')"
+       style="color: #ff4444; padding: 5px 10px; border: 1px solid #ff4444; text-decoration: none;">
+       Удалить мероприятие
+    </a>
+</div>
+{% endif %}
+
+<article>
+    <h1>{{ event.title }}</h1>
+    
+    <div style="background: #f5f5f5; padding: 15px; margin: 20px 0; border-radius: 5px;">
+        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+            <div>
+                <strong>Дата и время:</strong><br>
+                {{ event.event_date.strftime('%d.%m.%Y в %H:%M') }}
+            </div>
+            {% if event.location %}
+            <div>
+                <strong>Место:</strong><br>
+                {{ event.location }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if event.image_path %}
+    <img src="{{ url_for('static', filename=event.image_path) }}" alt="{{ event.title }}" style="max-width: 100%; height: auto; margin-bottom: 20px;">
+    {% endif %}
+    
+    <div style="line-height: 1.6;">
+        {{ event.description|replace('\n', '<br>')|safe }}
+    </div>
+</article>
+
+<div style="margin-top: 30px;">
+    <a href="{{ url_for('events') }}">← Все мероприятия</a>
+    &nbsp;|&nbsp;
+    <a href="{{ url_for('admin_panel') }}">Админ-панель</a>
+</div>
+{% endblock %}

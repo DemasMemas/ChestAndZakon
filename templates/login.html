@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Вход в систему{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 50px auto;">
+    <h1>Вход в систему</h1>
+
+    {% if error %}
+    <div style="color: red; margin-bottom: 15px;">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+        <div style="margin-bottom: 15px;">
+            <label for="username">Имя пользователя:</label>
+            <input type="text" id="username" name="username" required
+                   style="width: 100%; padding: 10px; margin-top: 5px;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="password" required
+                   style="width: 100%; padding: 10px; margin-top: 5px;">
+        </div>
+
+        <button type="submit" style="width: 100%; padding: 12px; background: #007bff; color: white; border: none;">
+            Войти
+        </button>
+    </form>
+</div>
+{% endblock %}

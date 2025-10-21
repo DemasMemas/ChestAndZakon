@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}{{ news_item.title }}{% endblock %}
+
+{% block content %}
+{% if current_user.is_authenticated and current_user.is_admin %}
+<div style="margin-bottom: 20px; text-align: right;">
+    <a href="{{ url_for('delete_news', news_id=news_item.id) }}"
+       onclick="return confirm('Удалить эту новость? Все комментарии также будут удалены.')"
+       style="color: #ff4444; padding: 5px 10px; border: 1px solid #ff4444; text-decoration: none;">
+       Удалить новость
+    </a>
+</div>
+{% endif %}
+
+<article>
+    <h1>{{ news_item.title }}</h1>
+    <p><small>Опубликовано: {{ news_item.created_at.strftime('%d.%m.%Y в %H:%M') }}</small></p>
+    
+    {% if news_item.image_path %}
+    <img src="{{ url_for('static', filename=news_item.image_path) }}" alt="{{ news_item.title }}" style="max-width: 100%; height: auto;">
+    {% endif %}
+    
+    <div style="margin-top: 20px; line-height: 1.6;">
+        {{ news_item.content|replace('\n', '<br>')|safe }}
+    </div>
+</article>
+
+<!-- Форма добавления комментария -->
+<div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
+    <h3>Добавить комментарий</h3>
+    <form method="POST">
+        <div style="margin-bottom: 15px;">
+            <label for="author">Ваше имя:</label>
+            <input type="text" id="author" name="author" required style="width: 300px; padding: 8px;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label for="content">Комментарий:</label>
+            <textarea id="content" name="content" rows="4" required style="width: 100%; padding: 8px;"></textarea>
+        </div>
+
+        <button type="submit" style="padding: 10px 20px;">Отправить комментарий</button>
+    </form>
+</div>
+
+<!-- Список комментариев -->
+<div style="margin-top: 40px;">
+    <h3>Комментарии ({{ comments|length }})</h3>
+
+    {% if comments %}
+        {% for comment in comments %}
+        <div style="border: 1px solid #eee; padding: 15px; margin-bottom: 15px; background: #f9f9f9;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong>{{ comment.author }}</strong>
+                <small>{{ comment.created_at.strftime('%d.%m.%Y в %H:%M') }}</small>
+            </div>
+            <p style="margin: 10px 0 0 0;">{{ comment.content }}</p>
+
+            <!-- Кнопка удаления (только для админов) -->
+            {% if current_user.is_authenticated and current_user.is_admin %}
+            <div style="margin-top: 10px;">
+                <a href="{{ url_for('delete_comment', comment_id=comment.id) }}"
+                   onclick="return confirm('Удалить этот комментарий?')"
+                   style="color: #ff4444; font-size: 0.9em;">Удалить</a>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>Пока нет комментариев. Будьте первым!</p>
+    {% endif %}
+</div>
+
+<a href="{{ url_for('news') }}">← Все новости</a>
+{% endblock %}

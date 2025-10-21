@@ -2,5 +2,47 @@
 
 {% block content %}
 <h1>Добро пожаловать на наш сайт!</h1>
-<p>Это главная страница.</p>
+
+<!-- Блок с последними новостями -->
+<section style="margin: 40px 0;">
+    <h2>Последние новости</h2>
+    {% set recent_news = News.query.order_by(News.created_at.desc()).limit(3).all() %}
+
+    {% if recent_news %}
+        {% for news in recent_news %}
+        <div style="border: 1px solid #eee; padding: 15px; margin-bottom: 15px;">
+            <h3>{{ news.title }}</h3>
+            <p><small>{{ news.created_at.strftime('%d.%m.%Y') }}</small></p>
+            <p>{{ news.content[:100] }}...</p>
+            <a href="{{ url_for('news_detail', news_id=news.id) }}">Читать далее</a>
+        </div>
+        {% endfor %}
+        <p><a href="{{ url_for('news') }}">Все новости →</a></p>
+    {% else %}
+        <p>Пока нет новостей.</p>
+    {% endif %}
+</section>
+
+<!-- Блок с ближайшими мероприятиями -->
+<section style="margin: 40px 0;">
+    <h2>Ближайшие мероприятия</h2>
+    {% set upcoming_events = Event.query.filter(Event.event_date >= now).order_by(Event.event_date.asc()).limit(3).all() %}
+
+    {% if upcoming_events %}
+        {% for event in upcoming_events %}
+        <div style="border: 1px solid #eee; padding: 15px; margin-bottom: 15px;">
+            <h3>{{ event.title }}</h3>
+            <p><strong>{{ event.event_date.strftime('%d.%m.%Y в %H:%M') }}</strong></p>
+            {% if event.location %}
+            <p><small>Место: {{ event.location }}</small></p>
+            {% endif %}
+            <p>{{ event.description[:100] }}...</p>
+            <a href="{{ url_for('event_detail', event_id=event.id) }}">Подробнее</a>
+        </div>
+        {% endfor %}
+        <p><a href="{{ url_for('events') }}">Все мероприятия →</a></p>
+    {% else %}
+        <p>На данный момент нет запланированных мероприятий.</p>
+    {% endif %}
+</section>
 {% endblock %}

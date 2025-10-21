@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Добавить новость{% endblock %}
+
+{% block content %}
+<h1>Добавить новость</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    <div>
+        <label for="title">Заголовок:</label>
+        <input type="text" id="title" name="title" required style="width: 100%; padding: 8px; margin: 5px 0;">
+    </div>
+    
+    <div>
+        <label for="content">Текст новости:</label>
+        <textarea id="content" name="content" rows="10" required style="width: 100%; padding: 8px; margin: 5px 0;"></textarea>
+    </div>
+    
+    <div>
+        <label for="image">Изображение (необязательно):</label>
+        <input type="file" id="image" name="image" accept="image/*">
+    </div>
+    
+    <button type="submit" style="padding: 10px 20px; margin-top: 10px;">Добавить новость</button>
+</form>
+
+<a href="{{ url_for('admin_panel') }}">← Назад в админ-панель</a>
+{% endblock %}

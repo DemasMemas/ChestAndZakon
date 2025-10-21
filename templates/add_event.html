@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Добавить мероприятие{% endblock %}
+
+{% block content %}
+<h1>Добавить мероприятие</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    <div>
+        <label for="title">Название мероприятия:</label>
+        <input type="text" id="title" name="title" required style="width: 100%; padding: 8px; margin: 5px 0;">
+    </div>
+    
+    <div>
+        <label for="description">Описание:</label>
+        <textarea id="description" name="description" rows="6" required style="width: 100%; padding: 8px; margin: 5px 0;"></textarea>
+    </div>
+    
+    <div>
+        <label for="event_date">Дата и время:</label>
+        <input type="datetime-local" id="event_date" name="event_date" required style="padding: 8px; margin: 5px 0;">
+    </div>
+    
+    <div>
+        <label for="location">Место проведения:</label>
+        <input type="text" id="location" name="location" style="width: 100%; padding: 8px; margin: 5px 0;">
+    </div>
+    
+    <div>
+        <label for="image">Изображение (необязательно):</label>
+        <input type="file" id="image" name="image" accept="image/*">
+    </div>
+    
+    <button type="submit" style="padding: 10px 20px; margin-top: 10px;">Добавить мероприятие</button>
+</form>
+
+<a href="{{ url_for('admin_panel') }}">← Назад в админ-панель</a>
+{% endblock %}

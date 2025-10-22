@@ -48,50 +48,68 @@
             {% set recent_news = News.query.order_by(News.created_at.desc()).limit(3).all() %}
             {% if recent_news %}
                 {% for news in recent_news %}
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        {% if news.images %}
-                        <div class="card-img-container">
-                            <img src="{{ url_for('static', filename=news.images[0].image_path) }}" 
-                                 class="card-img-top" 
-                                 alt="{{ news.title }}">
-                        </div>
-                        {% else %}
-                        <div class="card-img-container">
-                            <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
-                        </div>
-                        {% endif %}
-                        
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">{{ news.title }}</h5>
-                            <p class="card-text flex-grow-1">{{ news.content[:100] }}{% if news.content|length > 100 %}...{% endif %}</p>
-                            
-                            <div class="mt-3">
-                                {% if news.images and news.images|length > 1 %}
-                                <span class="badge bg-secondary me-1">
-                                    <i class="bi bi-images"></i> +{{ news.images|length - 1 }}
-                                </span>
-                                {% endif %}
-                                {% if news.videos %}
-                                <span class="badge bg-info">
-                                    <i class="bi bi-play-btn"></i> {{ news.videos|length }}
-                                </span>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="mt-auto pt-3">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">
-                                        <i class="bi bi-calendar me-1"></i> {{ news.created_at.strftime('%d.%m.%Y') }}
-                                    </small>
-                                    <a href="{{ url_for('news_detail', news_id=news.id) }}" class="btn btn-primary btn-sm">
-                                        Читать далее
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                <div class="col-md-6 col-lg-4 mb-4">
+    <div class="card h-100 shadow-sm position-relative news-card">
+        <!-- Основная кликабельная область -->
+        <a href="{{ url_for('news_detail', news_id=news.id) }}" class="news-card-link"></a>
+
+        {% if news.images %}
+        <div class="card-img-container">
+            <img src="{{ url_for('static', filename=news.images[0].image_path) }}"
+                 class="card-img-top"
+                 alt="{{ news.title }}">
+        </div>
+        {% else %}
+        <div class="card-img-container">
+            <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+        </div>
+        {% endif %}
+
+        <div class="card-body d-flex flex-column">
+            <h5 class="card-title">{{ news.title }}</h5>
+            <p class="card-text flex-grow-1">{{ news.content[:150] }}...</p>
+
+            <div class="mt-3">
+                {% if news.images and news.images|length > 1 %}
+                <span class="badge bg-secondary">
+                    <i class="bi bi-images"></i> +{{ news.images|length - 1 }}
+                </span>
+                {% endif %}
+                {% if news.videos %}
+                <span class="badge bg-info">
+                    <i class="bi bi-play-btn"></i> {{ news.videos|length }}
+                </span>
+                {% endif %}
+            </div>
+
+            <div class="mt-auto pt-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="bi bi-calendar"></i> {{ news.created_at.strftime('%d.%m.%Y') }}
+                    </small>
+                    <a href="{{ url_for('news_detail', news_id=news.id) }}" class="btn btn-outline-primary btn-sm position-relative">
+                        Читать далее
+                    </a>
+                </div>
+
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <div class="mt-2 pt-2 border-top position-relative">
+                    <div class="btn-group w-100" role="group">
+                        <a href="{{ url_for('edit_news', news_id=news.id) }}" class="btn btn-warning btn-sm">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{{ url_for('delete_news', news_id=news.id) }}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Удалить эту новость? Все комментарии и медиафайлы также будут удалены.')">
+                            <i class="bi bi-trash"></i>
+                        </a>
                     </div>
                 </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
                 {% endfor %}
             {% else %}
                 <div class="col-12">

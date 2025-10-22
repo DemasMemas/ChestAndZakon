@@ -72,6 +72,40 @@
                 height: 180px;
             }
         }
+
+        .news-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        }
+
+        .news-card-link {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            text-decoration: none;
+        }
+
+        .news-card .btn,
+        .news-card .btn-group {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Убедимся, что текст остается читаемым */
+        .news-card .card-title,
+        .news-card .card-text,
+        .news-card .text-muted {
+            position: relative;
+            z-index: 1;
+        }
     </style>
 
     {% block extra_css %}{% endblock %}

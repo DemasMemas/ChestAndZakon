@@ -10,6 +10,8 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
     <style>
         .navbar-brand {
             font-weight: 600;
@@ -150,7 +152,7 @@
         <div class="container">
             <!-- Бренд/логотип как ссылка на главную -->
             <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
-                <i class="bi bi-building me-2"></i>Моя Организация
+                Честь и закон
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

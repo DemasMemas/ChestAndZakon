@@ -1,62 +1,206 @@
 {% extends "base.html" %}
 
+{% block title %}Главная страница{% endblock %}
+
 {% block content %}
-<h1>Добро пожаловать на наш сайт!</h1>
-
-<section style="background: #f8f9fa; padding: 30px; margin: 30px 0; border-radius: 5px; text-align: center;">
-    <h2>Найдите нужную информацию</h2>
-    <form method="GET" action="{{ url_for('search') }}" style="max-width: 500px; margin: 0 auto;">
-        <div style="display: flex; gap: 10px;">
-            <input type="text" name="q" placeholder="Поиск по новостям и мероприятиям..."
-                   style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 5px;">
-            <button type="submit"
-                    style="padding: 12px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                🔍 Поиск
-            </button>
-        </div>
-    </form>
+<!-- Герой-секция -->
+<section class="hero-section">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold mb-4">Добро пожаловать в нашу организацию</h1>
+        <p class="lead mb-4">Мы занимаемся важными делами и делаем мир лучше</p>
+        <a href="{{ url_for('about') }}" class="btn btn-light btn-lg">Узнать больше о нас</a>
+    </div>
 </section>
 
-<!-- Блок с последними новостями -->
-<section style="margin: 40px 0;">
-    <h2>Последние новости</h2>
-    {% set recent_news = News.query.order_by(News.created_at.desc()).limit(3).all() %}
-
-    {% if recent_news %}
-        {% for news in recent_news %}
-        <div style="border: 1px solid #eee; padding: 15px; margin-bottom: 15px;">
-            <h3>{{ news.title }}</h3>
-            <p><small>{{ news.created_at.strftime('%d.%m.%Y') }}</small></p>
-            <p>{{ news.content[:100] }}...</p>
-            <a href="{{ url_for('news_detail', news_id=news.id) }}">Читать далее</a>
+<div class="container">
+    <!-- Поиск на главной -->
+    <section class="row justify-content-center my-5">
+        <div class="col-lg-8">
+            <div class="card shadow border-0">
+                <div class="card-body text-center p-4">
+                    <h3 class="card-title h4 mb-3">Найдите нужную информацию</h3>
+                    <form method="GET" action="{{ url_for('search') }}" class="mb-0">
+                        <div class="input-group input-group-lg">
+                            <input type="text" name="q" class="form-control" 
+                                   placeholder="Поиск по новостям и мероприятиям...">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-search me-1"></i> Поиск
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        {% endfor %}
-        <p><a href="{{ url_for('news') }}">Все новости →</a></p>
-    {% else %}
-        <p>Пока нет новостей.</p>
-    {% endif %}
-</section>
+    </section>
 
-<!-- Блок с ближайшими мероприятиями -->
-<section style="margin: 40px 0;">
-    <h2>Ближайшие мероприятия</h2>
-    {% set upcoming_events = Event.query.filter(Event.event_date >= now).order_by(Event.event_date.asc()).limit(3).all() %}
-
-    {% if upcoming_events %}
-        {% for event in upcoming_events %}
-        <div style="border: 1px solid #eee; padding: 15px; margin-bottom: 15px;">
-            <h3>{{ event.title }}</h3>
-            <p><strong>{{ event.event_date.strftime('%d.%m.%Y в %H:%M') }}</strong></p>
-            {% if event.location %}
-            <p><small>Место: {{ event.location }}</small></p>
+    <!-- Последние новости -->
+    <section class="my-5">
+        <div class="row align-items-center mb-4">
+            <div class="col">
+                <h2 class="h3 mb-0">Последние новости</h2>
+            </div>
+            <div class="col-auto">
+                <a href="{{ url_for('news') }}" class="btn btn-outline-primary">Все новости</a>
+            </div>
+        </div>
+        
+        <div class="row">
+            {% set recent_news = News.query.order_by(News.created_at.desc()).limit(3).all() %}
+            {% if recent_news %}
+                {% for news in recent_news %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        {% if news.images %}
+                        <div class="card-img-container">
+                            <img src="{{ url_for('static', filename=news.images[0].image_path) }}" 
+                                 class="card-img-top" 
+                                 alt="{{ news.title }}">
+                        </div>
+                        {% else %}
+                        <div class="card-img-container">
+                            <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ news.title }}</h5>
+                            <p class="card-text flex-grow-1">{{ news.content[:100] }}{% if news.content|length > 100 %}...{% endif %}</p>
+                            
+                            <div class="mt-3">
+                                {% if news.images and news.images|length > 1 %}
+                                <span class="badge bg-secondary me-1">
+                                    <i class="bi bi-images"></i> +{{ news.images|length - 1 }}
+                                </span>
+                                {% endif %}
+                                {% if news.videos %}
+                                <span class="badge bg-info">
+                                    <i class="bi bi-play-btn"></i> {{ news.videos|length }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mt-auto pt-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar me-1"></i> {{ news.created_at.strftime('%d.%m.%Y') }}
+                                    </small>
+                                    <a href="{{ url_for('news_detail', news_id=news.id) }}" class="btn btn-primary btn-sm">
+                                        Читать далее
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <i class="bi bi-newspaper display-1 text-muted mb-3"></i>
+                            <h3 class="h4">Пока нет новостей</h3>
+                            <p class="text-muted">Новости появятся здесь в ближайшее время.</p>
+                            {% if current_user.is_authenticated and current_user.is_admin %}
+                            <a href="{{ url_for('add_news') }}" class="btn btn-success">
+                                <i class="bi bi-plus-circle me-1"></i> Добавить первую новость
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             {% endif %}
-            <p>{{ event.description[:100] }}...</p>
-            <a href="{{ url_for('event_detail', event_id=event.id) }}">Подробнее</a>
         </div>
-        {% endfor %}
-        <p><a href="{{ url_for('events') }}">Все мероприятия →</a></p>
-    {% else %}
-        <p>На данный момент нет запланированных мероприятий.</p>
-    {% endif %}
-</section>
+    </section>
+
+    <!-- Ближайшие мероприятия -->
+    <section class="my-5">
+        <div class="row align-items-center mb-4">
+            <div class="col">
+                <h2 class="h3 mb-0">Ближайшие мероприятия</h2>
+            </div>
+            <div class="col-auto">
+                <a href="{{ url_for('events') }}" class="btn btn-outline-primary">Все мероприятия</a>
+            </div>
+        </div>
+        
+        <div class="row">
+            {% set upcoming_events = Event.query.filter(Event.event_date >= now).order_by(Event.event_date.asc()).limit(3).all() %}
+            {% if upcoming_events %}
+                {% for event in upcoming_events %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        {% if event.image_path %}
+                        <div class="card-img-container">
+                            <img src="{{ url_for('static', filename=event.image_path) }}" 
+                                 class="card-img-top" 
+                                 alt="{{ event.title }}">
+                        </div>
+                        {% else %}
+                        <div class="card-img-container">
+                            <i class="bi bi-calendar-event text-muted" style="font-size: 3rem;"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ event.title }}</h5>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted d-block">
+                                    <i class="bi bi-calendar-event me-1"></i> {{ event.event_date.strftime('%d.%m.%Y в %H:%M') }}
+                                </small>
+                                {% if event.location %}
+                                <small class="text-muted d-block">
+                                    <i class="bi bi-geo-alt me-1"></i> {{ event.location }}
+                                </small>
+                                {% endif %}
+                            </div>
+                            
+                            <p class="card-text flex-grow-1">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</p>
+                            
+                            <div class="mt-auto pt-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-primary btn-sm">
+                                        Подробнее
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <i class="bi bi-calendar-event display-1 text-muted mb-3"></i>
+                            <h3 class="h4">Нет запланированных мероприятий</h3>
+                            <p class="text-muted">Следите за обновлениями, скоро появятся новые мероприятия.</p>
+                            {% if current_user.is_authenticated and current_user.is_admin %}
+                            <a href="{{ url_for('add_event') }}" class="btn btn-success">
+                                <i class="bi bi-plus-circle me-1"></i> Добавить первое мероприятие
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Призыв к действию -->
+    <section class="my-5 py-5 bg-light rounded-3">
+        <div class="container text-center">
+            <h2 class="h1 mb-3">Присоединяйтесь к нам</h2>
+            <p class="lead mb-4">Станьте частью нашего сообщества и вместе мы сможем достичь большего.</p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-envelope me-2"></i> Связаться с нами
+                </a>
+                <a href="{{ url_for('about') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-info-circle me-2"></i> Узнать больше
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
 {% endblock %}

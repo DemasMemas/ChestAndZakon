@@ -30,7 +30,7 @@
 
     <!-- Блок для множественных видео -->
     <div style="margin: 20px 0;">
-        <h3>Видео</h3>
+        <h3>Добавить видео (необязательно)</h3>
         <div id="videos-container">
             <div class="video-field">
                 <select name="video_types" onchange="toggleVideoInput(this)">
@@ -38,9 +38,9 @@
                     <option value="vimeo">Vimeo</option>
                     <option value="uploaded">Загрузить видеофайл</option>
                 </select>
-                <input type="url" name="video_urls" placeholder="URL видео" style="margin-left: 10px; width: 300px;" class="video-url">
+                <input type="url" name="video_urls" placeholder="URL видео (необязательно)" style="margin-left: 10px; width: 300px;" class="video-url">
                 <input type="file" name="video_files" accept="video/*" style="margin-left: 10px; width: 300px; display: none;" class="video-file">
-                <input type="text" name="video_titles" placeholder="Название видео" style="margin-left: 10px; width: 200px;">
+                <input type="text" name="video_titles" placeholder="Название видео (необязательно)" style="margin-left: 10px; width: 200px;">
                 <button type="button" class="remove-video" onclick="removeVideoField(this)" style="margin-left: 10px; color: red;">✕</button>
             </div>
         </div>
@@ -104,13 +104,15 @@ function toggleVideoInput(select) {
     if (select.value === 'uploaded') {
         urlInput.style.display = 'none';
         fileInput.style.display = 'inline-block';
-        fileInput.required = true;
-        urlInput.required = false;
+        // Убираем required для необязательных полей
+        fileInput.removeAttribute('required');
+        urlInput.removeAttribute('required');
     } else {
         urlInput.style.display = 'inline-block';
         fileInput.style.display = 'none';
-        urlInput.required = true;
-        fileInput.required = false;
+        // Убираем required для необязательных полей
+        urlInput.removeAttribute('required');
+        fileInput.removeAttribute('required');
     }
 }
 

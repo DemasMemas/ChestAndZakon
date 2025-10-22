@@ -100,7 +100,7 @@ def news_detail(news_id):
 @app.route('/news')
 def news():
     page = request.args.get('page', 1, type=int)
-    per_page = 5  # Количество новостей на странице
+    per_page = 6  # Количество новостей на странице
 
     news_pagination = News.query.order_by(News.created_at.desc()).paginate(
         page=page, per_page=per_page, error_out=False
@@ -127,7 +127,7 @@ def delete_comment(comment_id):
 @app.route('/events')
 def events():
     page = request.args.get('page', 1, type=int)
-    per_page = 5  # Количество мероприятий на странице
+    per_page = 6  # Количество мероприятий на странице
 
     # Предстоящие мероприятия с пагинацией
     upcoming_events_query = Event.query.filter(Event.event_date >= datetime.now()).order_by(Event.event_date.asc())
@@ -255,15 +255,11 @@ def add_news():
         db.session.add(news)
         db.session.flush()  # Получаем ID новости
 
-        # Создаем папку для видео, если её нет
-        video_upload_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'videos')
-        os.makedirs(video_upload_folder, exist_ok=True)
-
         # Обработка множественных изображений
         if 'images' in request.files:
             images = request.files.getlist('images')
             for i, image in enumerate(images):
-                if image and allowed_file(image.filename):
+                if image and image.filename and allowed_file(image.filename):
                     filename = secure_filename(image.filename)
                     image_path = f'uploads/{filename}'
                     image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
@@ -275,16 +271,24 @@ def add_news():
                     )
                     db.session.add(news_image)
 
-        # Обработка множественных видео
+        # Обработка множественных видео (необязательных)
+        video_upload_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'videos')
+        os.makedirs(video_upload_folder, exist_ok=True)
+
         video_urls = request.form.getlist('video_urls')
         video_types = request.form.getlist('video_types')
         video_titles = request.form.getlist('video_titles')
         video_files = request.files.getlist('video_files')
 
         for i, (vtype, url, title) in enumerate(zip(video_types, video_urls, video_titles)):
+            # Пропускаем пустые поля
+            if not url.strip() and (i >= len(video_files) or not video_files[i].filename):
+                continue
+
             if vtype == 'uploaded':
                 # Обработка загруженного видеофайла
-                if i < len(video_files) and video_files[i] and allowed_video_file(video_files[i].filename):
+                if i < len(video_files) and video_files[i] and video_files[i].filename and allowed_video_file(
+                        video_files[i].filename):
                     file = video_files[i]
                     filename = secure_filename(file.filename)
                     video_path = f'uploads/videos/{filename}'

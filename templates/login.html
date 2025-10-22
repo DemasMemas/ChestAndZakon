@@ -3,29 +3,35 @@
 {% block title %}Вход в систему{% endblock %}
 
 {% block content %}
-<div style="max-width: 400px; margin: 50px auto;">
-    <h1>Вход в систему</h1>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0"><i class="bi bi-box-arrow-in-right"></i> Вход в систему</h4>
+                </div>
+                <div class="card-body p-4">
+                    {% if error %}
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        {{ error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endif %}
 
-    {% if error %}
-    <div style="color: red; margin-bottom: 15px;">{{ error }}</div>
-    {% endif %}
-
-    <form method="POST">
-        <div style="margin-bottom: 15px;">
-            <label for="username">Имя пользователя:</label>
-            <input type="text" id="username" name="username" required
-                   style="width: 100%; padding: 10px; margin-top: 5px;">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Имя пользователя</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Пароль</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Войти</button>
+                    </form>
+                </div>
+            </div>
         </div>
-
-        <div style="margin-bottom: 15px;">
-            <label for="password">Пароль:</label>
-            <input type="password" id="password" name="password" required
-                   style="width: 100%; padding: 10px; margin-top: 5px;">
-        </div>
-
-        <button type="submit" style="width: 100%; padding: 12px; background: #007bff; color: white; border: none;">
-            Войти
-        </button>
-    </form>
+    </div>
 </div>
 {% endblock %}

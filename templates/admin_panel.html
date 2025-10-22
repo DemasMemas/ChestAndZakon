@@ -3,113 +3,152 @@
 {% block title %}Админ-панель{% endblock %}
 
 {% block content %}
-<h1>Админ-панель</h1>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2">Админ-панель</h1>
+        <div class="btn-group">
+            <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                <i class="bi bi-house"></i> На сайт
+            </a>
+        </div>
+    </div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
-    <div style="background: #e9ecef; padding: 20px; border-radius: 5px; margin-bottom: 30px;">
-        <h3>🔍 Быстрый поиск</h3>
-        <form method="GET" action="{{ url_for('search') }}">
-            <div style="display: flex; gap: 10px;">
-                <input type="text" name="q" placeholder="Поиск по контенту..."
-                       style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 3px;">
-                <button type="submit"
-                        style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 3px;">
-                    Найти
-                </button>
+    <!-- Статистика -->
+    <div class="row mb-5">
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ News.query.count() }}</h4>
+                            <p class="card-text">Новостей</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-newspaper fs-1"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </form>
-    </div>
-
-    <!-- Блок новостей -->
-    <div style="border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
-        <h2 style="color: #007bff; margin-top: 0;">📰 Новости</h2>
-        <ul style="list-style: none; padding: 0;">
-            <li style="margin-bottom: 10px;">
-                <a href="{{ url_for('add_news') }}" style="display: block; padding: 10px; background: #28a745; color: white; text-decoration: none; border-radius: 3px; text-align: center;">
-                    ✏️ Добавить новость
-                </a>
-            </li>
-            <li style="margin-bottom: 10px;">
-                <a href="{{ url_for('news') }}" style="display: block; padding: 10px; background: #17a2b8; color: white; text-decoration: none; border-radius: 3px; text-align: center;">
-                    📋 Управление новостями ({{ News.query.count() }})
-                </a>
-            </li>
-        </ul>
-    </div>
-
-    <!-- Блок мероприятий -->
-    <div style="border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
-        <h2 style="color: #dc3545; margin-top: 0;">🎪 Мероприятия</h2>
-        <ul style="list-style: none; padding: 0;">
-            <li style="margin-bottom: 10px;">
-                <a href="{{ url_for('add_event') }}" style="display: block; padding: 10px; background: #28a745; color: white; text-decoration: none; border-radius: 3px; text-align: center;">
-                    ✏️ Добавить мероприятие
-                </a>
-            </li>
-            <li style="margin-bottom: 10px;">
-                <a href="{{ url_for('events') }}" style="display: block; padding: 10px; background: #17a2b8; color: white; text-decoration: none; border-radius: 3px; text-align: center;">
-                    📋 Управление мероприятиями ({{ Event.query.count() }})
-                </a>
-            </li>
-        </ul>
-    </div>
-</div>
-
-{% if current_user.is_admin %}
-<!-- Управление пользователями -->
-<div style="margin-top: 30px; border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
-    <h2 style="color: #ffc107; margin-top: 0;">👥 Управление пользователями</h2>
-    <a href="{{ url_for('register') }}" style="display: inline-block; padding: 10px 20px; background: #6f42c1; color: white; text-decoration: none; border-radius: 3px;">
-        👤 Добавить пользователя
-    </a>
-</div>
-{% endif %}
-
-<!-- Статистика -->
-<div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 5px;">
-    <h3 style="margin-top: 0;">📊 Статистика</h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-        <div style="text-align: center; padding: 15px; background: white; border-radius: 5px;">
-            <div style="font-size: 24px; font-weight: bold; color: #007bff;">{{ News.query.count() }}</div>
-            <div>Новостей</div>
         </div>
-        <div style="text-align: center; padding: 15px; background: white; border-radius: 5px;">
-            <div style="font-size: 24px; font-weight: bold; color: #dc3545;">{{ Event.query.count() }}</div>
-            <div>Мероприятий</div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ Event.query.count() }}</h4>
+                            <p class="card-text">Мероприятий</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-calendar-event fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div style="text-align: center; padding: 15px; background: white; border-radius: 5px;">
-            <div style="font-size: 24px; font-weight: bold; color: #28a745;">{{ Comment.query.count() }}</div>
-            <div>Комментариев</div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ Comment.query.count() }}</h4>
+                            <p class="card-text">Комментариев</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-chat-dots fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div style="text-align: center; padding: 15px; background: white; border-radius: 5px;">
-            <div style="font-size: 24px; font-weight: bold; color: #6f42c1;">{{ Event.query.filter(Event.event_date >= now).count() }}</div>
-            <div>Предстоящих мероприятий</div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ Event.query.filter(Event.event_date >= now).count() }}</h4>
+                            <p class="card-text">Предстоящих</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-clock fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Быстрые действия -->
-<div style="margin-top: 30px;">
-    <h3>⚡ Быстрые действия</h3>
-    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <a href="{{ url_for('add_news') }}" class="quick-action">📝 Новая новость</a>
-        <a href="{{ url_for('add_event') }}" class="quick-action">🎪 Новое мероприятие</a>
-        <a href="{{ url_for('news') }}" class="quick-action">📰 Все новости</a>
-        <a href="{{ url_for('events') }}" class="quick-action">📅 Все мероприятия</a>
+    <!-- Быстрое управление -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="bi bi-newspaper"></i> Управление новостями</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('add_news') }}" class="btn btn-success">
+                            <i class="bi bi-plus-circle"></i> Добавить новость
+                        </a>
+                        <a href="{{ url_for('news') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-list"></i> Все новости ({{ News.query.count() }})
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="bi bi-calendar-event"></i> Управление мероприятиями</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('add_event') }}" class="btn btn-success">
+                            <i class="bi bi-plus-circle"></i> Добавить мероприятие
+                        </a>
+                        <a href="{{ url_for('events') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-list"></i> Все мероприятия ({{ Event.query.count() }})
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if current_user.is_admin %}
+    <!-- Управление пользователями -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="bi bi-people"></i> Управление пользователями</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary">
+                        <i class="bi bi-person-plus"></i> Добавить пользователя
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Быстрый поиск -->
+    <div class="card mt-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="bi bi-search"></i> Быстрый поиск</h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('search') }}">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Поиск по контенту...">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-search"></i> Найти
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
-
-<style>
-.quick-action {
-    padding: 8px 15px;
-    background: #6c757d;
-    color: white;
-    text-decoration: none;
-    border-radius: 3px;
-    font-size: 14px;
-}
-.quick-action:hover {
-    background: #5a6268;
-}
-</style>
 {% endblock %}

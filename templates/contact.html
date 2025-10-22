@@ -3,46 +3,122 @@
 {% block title %}Контакты{% endblock %}
 
 {% block content %}
-<h1>Свяжитесь с нами</h1>
+<div class="container mt-4">
+    <div class="row">
+        <!-- Основной контент -->
+        <div class="col-lg-8">
+            <h1 class="h2 mb-4">Свяжитесь с нами</h1>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-            <div style="padding: 10px; margin: 10px 0; background: {% if category == 'error' %}#f8d7da{% else %}#d4edda{% endif %};
-                       border: 1px solid {% if category == 'error' %}#f5c6cb{% else %}#c3e6cb{% endif %};
-                       border-radius: 5px; color: {% if category == 'error' %}#721c24{% else %}#155724{% endif %};">
-                {{ message }}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show mb-4">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-envelope"></i> Форма обратной связи</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Ваше имя *</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Ваш email *</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Сообщение *</label>
+                            <textarea class="form-control" id="message" name="message" rows="6" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-send"></i> Отправить сообщение
+                        </button>
+                    </form>
+                </div>
             </div>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
+        </div>
 
-<form method="POST">
-    <div style="margin-bottom: 15px;">
-        <label for="name">Ваше имя:</label>
-        <input type="text" id="name" name="name" required style="width: 100%; max-width: 400px; padding: 10px; margin: 5px 0;">
+        <!-- Боковая панель с контактной информацией -->
+        <div class="col-lg-4 mt-5 mt-lg-0">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Контактная информация</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <div class="d-flex">
+                                <i class="bi bi-geo-alt text-primary me-3 fs-5"></i>
+                                <div>
+                                    <strong>Адрес</strong><br>
+                                    <span class="text-muted">ул. Примерная, д. 123, г. Москва</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div class="d-flex">
+                                <i class="bi bi-telephone text-primary me-3 fs-5"></i>
+                                <div>
+                                    <strong>Телефон</strong><br>
+                                    <span class="text-muted">+7 (495) 123-45-67</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div class="d-flex">
+                                <i class="bi bi-envelope text-primary me-3 fs-5"></i>
+                                <div>
+                                    <strong>Email</strong><br>
+                                    <span class="text-muted">info@example.com</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div class="d-flex">
+                                <i class="bi bi-clock text-primary me-3 fs-5"></i>
+                                <div>
+                                    <strong>Режим работы</strong><br>
+                                    <span class="text-muted">Пн-Пт: 9:00-18:00</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Социальные сети -->
+            <div class="card mt-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="bi bi-people"></i> Мы в социальных сетях</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="#" class="btn btn-outline-primary">
+                            <i class="bi bi-facebook me-2"></i> Facebook
+                        </a>
+                        <a href="#" class="btn btn-outline-info">
+                            <i class="bi bi-telegram me-2"></i> Telegram
+                        </a>
+                        <a href="#" class="btn btn-outline-danger">
+                            <i class="bi bi-youtube me-2"></i> YouTube
+                        </a>
+                        <a href="#" class="btn btn-outline-dark">
+                            <i class="bi bi-github me-2"></i> GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div style="margin-bottom: 15px;">
-        <label for="email">Ваш email:</label>
-        <input type="email" id="email" name="email" required style="width: 100%; max-width: 400px; padding: 10px; margin: 5px 0;">
-    </div>
-
-    <div style="margin-bottom: 15px;">
-        <label for="message">Сообщение:</label>
-        <textarea id="message" name="message" rows="6" required style="width: 100%; padding: 10px; margin: 5px 0;"></textarea>
-    </div>
-
-    <button type="submit" style="padding: 12px 25px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">
-        Отправить сообщение
-    </button>
-</form>
-
-<!-- Контактная информация -->
-<div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 5px;">
-    <h3>Другие способы связи</h3>
-    <p>📧 Email: your-organization@example.com</p>
-    <p>📞 Телефон: +7 (XXX) XXX-XX-XX</p>
-    <p>📍 Адрес: Ваш адрес</p>
 </div>
 {% endblock %}

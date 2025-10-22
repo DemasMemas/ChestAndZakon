@@ -3,25 +3,130 @@
 {% block title %}О нас{% endblock %}
 
 {% block content %}
-<h1>О нашей организации</h1>
+<div class="container mt-4">
+    <!-- Герой-секция -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6">
+            <h1 class="display-5 fw-bold mb-4">О нашей организации</h1>
+            <p class="lead mb-4">
+                Мы - команда профессионалов, dedicated to making a difference in our community
+                through innovation, collaboration, and commitment to excellence.
+            </p>
+        </div>
+        <div class="col-lg-6">
+            <img src="https://via.placeholder.com/600x400" alt="О нашей организации"
+                 class="img-fluid rounded shadow">
+        </div>
+    </div>
 
-<section>
-    <h2>Наши цели</h2>
-    <p>Здесь опишите основные цели вашей организации...</p>
-    <ul>
-        <li>Цель 1</li>
-        <li>Цель 2</li>
-        <li>Цель 3</li>
-    </ul>
-</section>
+    <!-- Наши цели -->
+    <section class="mb-5">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="h3 mb-4 text-center">Наши цели</h2>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-bullseye text-primary fs-1 mb-3"></i>
+                        <h5 class="card-title">Цель 1</h5>
+                        <p class="card-text">
+                            Развитие и поддержка сообщества через образовательные программы
+                            и культурные мероприятия.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-lightbulb text-warning fs-1 mb-3"></i>
+                        <h5 class="card-title">Цель 2</h5>
+                        <p class="card-text">
+                            Создание инновационных решений для актуальных проблем
+                            современного общества.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-people text-success fs-1 mb-3"></i>
+                        <h5 class="card-title">Цель 3</h5>
+                        <p class="card-text">
+                            Объединение людей для совместной работы над важными
+                            социальными проектами.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<section>
-    <h2>Наши задачи</h2>
-    <p>Здесь опишите конкретные задачи...</p>
-    <ul>
-        <li>Задача 1</li>
-        <li>Задача 2</li>
-        <li>Задача 3</li>
-    </ul>
-</section>
+    <!-- Наши задачи -->
+    <section class="mb-5">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="h3 mb-4 text-center">Наши задачи</h2>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                Организация регулярных мероприятий и встреч
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                Публикация актуальных новостей и обновлений
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                Поддержка открытого диалога с сообществом
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                Развитие партнерских отношений
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                Обеспечение прозрачности деятельности
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                Постоянное улучшение наших услуг
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Призыв к действию -->
+    <section class="text-center py-5 bg-light rounded">
+        <h3 class="h2 mb-3">Присоединяйтесь к нам!</h3>
+        <p class="lead mb-4">
+            Станьте частью нашего сообщества и вместе мы сможем достичь большего.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">
+                <i class="bi bi-envelope"></i> Связаться с нами
+            </a>
+            <a href="{{ url_for('events') }}" class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-calendar-event"></i> Посмотреть мероприятия
+            </a>
+        </div>
+    </section>
+</div>
 {% endblock %}

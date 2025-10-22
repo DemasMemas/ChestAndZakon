@@ -6,6 +6,20 @@
 <h1>Админ-панель</h1>
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
+    <div style="background: #e9ecef; padding: 20px; border-radius: 5px; margin-bottom: 30px;">
+        <h3>🔍 Быстрый поиск</h3>
+        <form method="GET" action="{{ url_for('search') }}">
+            <div style="display: flex; gap: 10px;">
+                <input type="text" name="q" placeholder="Поиск по контенту..."
+                       style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 3px;">
+                <button type="submit"
+                        style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 3px;">
+                    Найти
+                </button>
+            </div>
+        </form>
+    </div>
+
     <!-- Блок новостей -->
     <div style="border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
         <h2 style="color: #007bff; margin-top: 0;">📰 Новости</h2>

@@ -3,6 +3,20 @@
 {% block content %}
 <h1>Добро пожаловать на наш сайт!</h1>
 
+<section style="background: #f8f9fa; padding: 30px; margin: 30px 0; border-radius: 5px; text-align: center;">
+    <h2>Найдите нужную информацию</h2>
+    <form method="GET" action="{{ url_for('search') }}" style="max-width: 500px; margin: 0 auto;">
+        <div style="display: flex; gap: 10px;">
+            <input type="text" name="q" placeholder="Поиск по новостям и мероприятиям..."
+                   style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 5px;">
+            <button type="submit"
+                    style="padding: 12px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                🔍 Поиск
+            </button>
+        </div>
+    </form>
+</section>
+
 <!-- Блок с последними новостями -->
 <section style="margin: 40px 0;">
     <h2>Последние новости</h2>

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Поиск{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <h1>Поиск по сайту</h1>
+    
+    <!-- Форма поиска -->
+    <form method="GET" action="{{ url_for('search') }}" style="margin-bottom: 30px;">
+        <div style="display: flex; gap: 10px; max-width: 600px;">
+            <input type="text" name="q" value="{{ query }}" 
+                   placeholder="Введите поисковый запрос..." 
+                   style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 5px;">
+            <button type="submit" 
+                    style="padding: 12px 25px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                🔍 Поиск
+            </button>
+        </div>
+    </form>
+
+    {% if query %}
+        <!-- Результаты поиска -->
+        <div class="search-results">
+            <h2>Результаты поиска для "{{ query }}"</h2>
+            
+            <!-- Статистика -->
+            <div style="margin-bottom: 20px; color: #666;">
+                Найдено: {{ total_news }} новостей, {{ total_events }} мероприятий
+            </div>
+
+            <!-- Новости -->
+            {% if news_results %}
+            <section style="margin-bottom: 40px;">
+                <h3>Новости ({{ total_news }})</h3>
+                {% for news in news_results %}
+                <div style="border: 1px solid #eee; padding: 20px; margin-bottom: 15px; border-radius: 5px;">
+                    <h4 style="margin-top: 0;">
+                        <a href="{{ url_for('news_detail', news_id=news.id) }}">{{ news.title }}</a>
+                    </h4>
+                    <p style="color: #666; margin-bottom: 10px;">
+                        {{ news.created_at.strftime('%d.%m.%Y') }}
+                    </p>
+                    <p>
+                        {% if query in news.content %}
+                            ...{{ news.content|replace(query, '<mark>' + query + '</mark>')|safe }}...
+                        {% else %}
+                            {{ news.content[:200] }}...
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_for('news_detail', news_id=news.id) }}">Читать далее</a>
+                </div>
+                {% endfor %}
+
+                <!-- Пагинация для новостей -->
+                {% if news_pagination.pages > 1 %}
+                <div style="display: flex; justify-content: center; margin-top: 20px;">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        {% if news_pagination.has_prev %}
+                            <a href="{{ url_for('search', q=query, page=news_pagination.prev_num) }}" 
+                               style="padding: 8px 15px; border: 1px solid #ddd; text-decoration: none;">← Назад</a>
+                        {% endif %}
+                        
+                        {% for page_num in news_pagination.iter_pages(left_edge=1, left_current=1, right_current=1, right_edge=1) %}
+                            {% if page_num %}
+                                {% if page_num != news_pagination.page %}
+                                    <a href="{{ url_for('search', q=query, page=page_num) }}" 
+                                       style="padding: 8px 12px; border: 1px solid #ddd; text-decoration: none;">{{ page_num }}</a>
+                                {% else %}
+                                    <span style="padding: 8px 12px; border: 1px solid #007bff; background: #007bff; color: white;">{{ page_num }}</span>
+                                {% endif %}
+                            {% else %}
+                                <span style="padding: 8px 5px;">...</span>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if news_pagination.has_next %}
+                            <a href="{{ url_for('search', q=query, page=news_pagination.next_num) }}" 
+                               style="padding: 8px 15px; border: 1px solid #ddd; text-decoration: none;">Вперед →</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </section>
+            {% endif %}
+
+            <!-- Мероприятия -->
+            {% if events_results %}
+            <section style="margin-bottom: 40px;">
+                <h3>Мероприятия ({{ total_events }})</h3>
+                {% for event in events_results %}
+                <div style="border: 1px solid #eee; padding: 20px; margin-bottom: 15px; border-radius: 5px;">
+                    <h4 style="margin-top: 0;">
+                        <a href="{{ url_for('event_detail', event_id=event.id) }}">{{ event.title }}</a>
+                    </h4>
+                    <div style="color: #666; margin-bottom: 10px;">
+                        <strong>Когда:</strong> {{ event.event_date.strftime('%d.%m.%Y в %H:%M') }}
+                        {% if event.location %}
+                        <br><strong>Где:</strong> {{ event.location }}
+                        {% endif %}
+                    </div>
+                    <p>
+                        {% if query in event.description %}
+                            ...{{ event.description|replace(query, '<mark>' + query + '</mark>')|safe }}...
+                        {% else %}
+                            {{ event.description[:200] }}...
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_for('event_detail', event_id=event.id) }}">Подробнее</a>
+                </div>
+                {% endfor %}
+            </section>
+            {% endif %}
+
+            <!-- Если ничего не найдено -->
+            {% if not news_results and not events_results %}
+            <div style="text-align: center; padding: 40px; color: #666;">
+                <p>По вашему запросу ничего не найдено.</p>
+                <p>Попробуйте изменить поисковый запрос или искать по другим словам.</p>
+            </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <!-- Подсказки когда запрос пустой -->
+        <div style="text-align: center; padding: 40px; color: #666;">
+            <p>Введите поисковый запрос в поле выше.</p>
+            <p>Вы можете искать по новостям и мероприятиям.</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+mark {
+    background-color: #fff3cd;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+</style>
+{% endblock %}

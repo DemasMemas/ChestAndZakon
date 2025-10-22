@@ -5,22 +5,44 @@
 {% block content %}
 <h1>Свяжитесь с нами</h1>
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div style="padding: 10px; margin: 10px 0; background: {% if category == 'error' %}#f8d7da{% else %}#d4edda{% endif %};
+                       border: 1px solid {% if category == 'error' %}#f5c6cb{% else %}#c3e6cb{% endif %};
+                       border-radius: 5px; color: {% if category == 'error' %}#721c24{% else %}#155724{% endif %};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
 <form method="POST">
-    <div>
+    <div style="margin-bottom: 15px;">
         <label for="name">Ваше имя:</label>
-        <input type="text" id="name" name="name" required>
+        <input type="text" id="name" name="name" required style="width: 100%; max-width: 400px; padding: 10px; margin: 5px 0;">
     </div>
-    
-    <div>
+
+    <div style="margin-bottom: 15px;">
         <label for="email">Ваш email:</label>
-        <input type="email" id="email" name="email" required>
+        <input type="email" id="email" name="email" required style="width: 100%; max-width: 400px; padding: 10px; margin: 5px 0;">
     </div>
-    
-    <div>
+
+    <div style="margin-bottom: 15px;">
         <label for="message">Сообщение:</label>
-        <textarea id="message" name="message" rows="5" required></textarea>
+        <textarea id="message" name="message" rows="6" required style="width: 100%; padding: 10px; margin: 5px 0;"></textarea>
     </div>
-    
-    <button type="submit">Отправить</button>
+
+    <button type="submit" style="padding: 12px 25px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">
+        Отправить сообщение
+    </button>
 </form>
+
+<!-- Контактная информация -->
+<div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 5px;">
+    <h3>Другие способы связи</h3>
+    <p>📧 Email: your-organization@example.com</p>
+    <p>📞 Телефон: +7 (XXX) XXX-XX-XX</p>
+    <p>📍 Адрес: Ваш адрес</p>
+</div>
 {% endblock %}

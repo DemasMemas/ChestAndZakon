@@ -37,6 +37,12 @@
         <a href="{{ url_for('events') }}">Мероприятия</a>
         <a href="{{ url_for('contact') }}">Контакты</a>
 
+        <!-- Поиск -->
+        <form method="GET" action="{{ url_for('search') }}" style="display: inline; margin-left: 20px;">
+            <input type="text" name="q" placeholder="Поиск..."
+                   style="padding: 5px 10px; border: 1px solid #ddd; border-radius: 15px; width: 150px;">
+        </form>
+
         {% if current_user.is_authenticated %}
             {% if current_user.is_admin %}
                 <a href="{{ url_for('admin_panel') }}">Админ-панель</a>

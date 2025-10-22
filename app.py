@@ -3,6 +3,7 @@ from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask_mail import Mail, Message
 from werkzeug.utils import secure_filename
 
 from config import Config
@@ -14,6 +15,7 @@ app.config.from_object(Config)
 from models import db, News, Event, Comment, User, NewsVideo, NewsImage
 
 db.init_app(app)
+mail = Mail(app)
 
 # Настройка Flask-Login
 login_manager = LoginManager()
@@ -192,14 +194,46 @@ def edit_event(event_id):
 
     return render_template('edit_event.html', event=event, event_date_formatted=event_date_formatted)
 
+
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
         message = request.form['message']
-        print(f"Новое сообщение от {name} ({email}): {message}")
-        return redirect(url_for('contact_success'))
+
+        try:
+            # Создаем и отправляем email
+            msg = Message(
+                subject=f"Новое сообщение от {name}",
+                sender=app.config['MAIL_DEFAULT_SENDER'],
+                recipients=[app.config['MAIL_USERNAME']],  # Отправляем себе
+                reply_to=email  # Чтобы можно было ответить отправителю
+            )
+
+            msg.body = f"""
+            Имя: {name}
+            Email: {email}
+
+            Сообщение:
+            {message}
+
+            ---
+            Это сообщение отправлено через форму обратной связи на сайте.
+            """
+
+            mail.send(msg)
+
+            # Логируем успешную отправку
+            print(f"Email отправлен: от {name} ({email})")
+
+            return redirect(url_for('contact_success'))
+
+        except Exception as e:
+            # В случае ошибки показываем сообщение и логируем
+            print(f"Ошибка отправки email: {str(e)}")
+            flash('Произошла ошибка при отправке сообщения. Пожалуйста, попробуйте позже.', 'error')
+            return render_template('contact.html')
 
     return render_template('contact.html')
 
@@ -504,6 +538,48 @@ def register():
         return redirect(url_for('admin_panel'))
 
     return render_template('register.html')
+
+
+@app.route('/search')
+def search():
+    query = request.args.get('q', '').strip()
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+
+    if not query:
+        return render_template('search.html', query=query)
+
+    # Разбиваем запрос на слова для улучшения поиска
+    search_terms = query.split()
+
+    # Поиск по новостям
+    news_filters = []
+    for term in search_terms:
+        news_filters.append(News.title.ilike(f'%{term}%'))
+        news_filters.append(News.content.ilike(f'%{term}%'))
+
+    news_results = News.query.filter(db.or_(*news_filters)).order_by(News.created_at.desc())
+
+    # Поиск по мероприятиям
+    event_filters = []
+    for term in search_terms:
+        event_filters.append(Event.title.ilike(f'%{term}%'))
+        event_filters.append(Event.description.ilike(f'%{term}%'))
+        event_filters.append(Event.location.ilike(f'%{term}%'))
+
+    events_results = Event.query.filter(db.or_(*event_filters)).order_by(Event.event_date.desc())
+
+    # Пагинация
+    news_pagination = news_results.paginate(page=page, per_page=per_page, error_out=False)
+    events_list = events_results.limit(10).all()
+
+    return render_template('search.html',
+                           query=query,
+                           news_results=news_pagination.items,
+                           events_results=events_list,
+                           news_pagination=news_pagination,
+                           total_news=news_results.count(),
+                           total_events=events_results.count())
 
 if __name__ == '__main__':
     with app.app_context():

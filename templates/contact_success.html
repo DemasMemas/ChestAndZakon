@@ -3,7 +3,18 @@
 {% block title %}Сообщение отправлено{% endblock %}
 
 {% block content %}
-<h1>Спасибо!</h1>
-<p>Ваше сообщение успешно отправлено. Мы свяжемся с вами в ближайшее время.</p>
-<a href="{{ url_for('index') }}">Вернуться на главную</a>
+<div style="text-align: center; padding: 40px 20px;">
+    <div style="font-size: 48px; margin-bottom: 20px;">✅</div>
+    <h1>Сообщение отправлено!</h1>
+    <p style="font-size: 18px; margin-bottom: 30px;">Спасибо за ваше сообщение. Мы свяжемся с вами в ближайшее время.</p>
+
+    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('index') }}" style="padding: 12px 25px; background: #007bff; color: white; text-decoration: none; border-radius: 3px;">
+            На главную
+        </a>
+        <a href="{{ url_for('contact') }}" style="padding: 12px 25px; background: #6c757d; color: white; text-decoration: none; border-radius: 3px;">
+            Отправить еще одно сообщение
+        </a>
+    </div>
+</div>
 {% endblock %}

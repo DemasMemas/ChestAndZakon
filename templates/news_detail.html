@@ -94,29 +94,7 @@
         </section>
     </article>
 
-    <!-- Форма добавления комментария -->
-    <section class="mb-5">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="h5 mb-0">Добавить комментарий</h3>
-            </div>
-            <div class="card-body">
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="author" class="form-label">Ваше имя</label>
-                        <input type="text" class="form-control" id="author" name="author" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="content" class="form-label">Комментарий</label>
-                        <textarea class="form-control" id="content" name="content" rows="4" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Отправить комментарий</button>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- Список комментариев -->
+        <!-- Список комментариев -->
     <section class="comments">
         <h3 class="h4 mb-4">Комментарии ({{ comments_pagination.total }})</h3>
 
@@ -185,6 +163,28 @@
                 <p class="mb-0">Пока нет комментариев. Будьте первым!</p>
             </div>
         {% endif %}
+    </section>
+
+    <!-- Форма добавления комментария -->
+    <section class="mb-5">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="h5 mb-0">Добавить комментарий</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="author" class="form-label">Ваше имя</label>
+                        <input type="text" class="form-control" id="author" name="author" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Комментарий</label>
+                        <textarea class="form-control" id="content" name="content" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Отправить комментарий</button>
+                </form>
+            </div>
+        </div>
     </section>
 
     <!-- Навигация -->

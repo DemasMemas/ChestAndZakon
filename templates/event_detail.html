@@ -66,7 +66,7 @@
         <!-- Изображение мероприятия -->
         {% if event.image_path %}
         <div class="text-center mb-4">
-            <img src="{{ url_for('static', filename=event.image_path) }}"
+            <img src="{{ url_for('uploaded_files', filename=event.image_path.split('/')[-1]) }}"
                  alt="{{ event.title }}"
                  class="img-fluid rounded shadow"
                  style="max-height: 500px; object-fit: cover;">

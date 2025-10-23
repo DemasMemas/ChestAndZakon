@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -27,12 +28,13 @@ login_manager.login_message = 'Пожалуйста, войдите для до�
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-UPLOAD_FOLDER = 'static/uploads'
+UPLOAD_FOLDER = '/data/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 ALLOWED_VIDEO_EXTENSIONS = {'mp4', 'mov', 'avi', 'mkv', 'webm'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(os.path.join(UPLOAD_FOLDER, 'videos'), exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -584,6 +586,33 @@ def search():
                            news_pagination=news_pagination,
                            total_news=news_results.count(),
                            total_events=events_results.count())
+
+def extract_vk_video_id(url):
+    """Извлекает ID видео из VK URL"""
+    if 'vk.com' in url:
+        # Ищем pattern like video-12345_12345 или video12345_12345
+        match = re.search(r'video-?(\d+_\d+)', url)
+        if match:
+            return match.group(1)
+    return None
+
+def extract_rutube_video_id(url):
+    """Извлекает ID видео из RuTube URL"""
+    if 'rutube.ru' in url:
+        # Ищем video ID в URL
+        match = re.search(r'video/([a-zA-Z0-9]+)/', url)
+        if match:
+            return match.group(1)
+    return None
+
+# Регистрируем фильтры в Jinja2
+@app.template_filter('extract_vk_video_id')
+def extract_vk_video_id_filter(url):
+    return extract_vk_video_id(url)
+
+@app.template_filter('extract_rutube_video_id')
+def extract_rutube_video_id_filter(url):
+    return extract_rutube_video_id(url)
 
 if __name__ == '__main__':
     with app.app_context():

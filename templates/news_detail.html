@@ -49,41 +49,41 @@
 
         <!-- Видео -->
         {% if news_item.videos %}
-        <section class="mb-4">
-            <h3 class="h4">Видео ({{ news_item.videos|length }})</h3>
-            <div class="row g-4">
-                {% for video in news_item.videos %}
-                <div class="col-12">
-                    <h5>{{ video.title }}</h5>
-                    {% if video.video_type == 'uploaded' %}
-                        <!-- Загруженное видео -->
-                        <video controls class="w-100" style="max-height: 500px; background: #000;">
-                            <source src="{{ url_for('static', filename=video.video_path) }}" type="video/mp4">
-                            Ваш браузер не поддерживает видео тег.
-                        </video>
-                    {% elif video.video_type == 'youtube' %}
-                        <!-- Встраивание YouTube -->
-                        <div class="ratio ratio-16x9">
-                            <iframe src="https://www.youtube.com/embed/{{ video.video_url|replace('https://www.youtube.com/watch?v=', '')|replace('https://youtu.be/', '') }}"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen>
-                            </iframe>
-                        </div>
-                    {% elif video.video_type == 'vimeo' %}
-                        <!-- Встраивание Vimeo -->
-                        <div class="ratio ratio-16x9">
-                            <iframe src="https://player.vimeo.com/video/{{ video.video_url|replace('https://vimeo.com/', '') }}"
-                                    frameborder="0"
-                                    allow="autoplay; fullscreen; picture-in-picture"
-                                    allowfullscreen>
-                            </iframe>
-                        </div>
-                    {% endif %}
-                </div>
-                {% endfor %}
+        <div class="videos-section">
+            <h3>Видео</h3>
+            {% for video in news_item.videos %}
+            <div class="video-item" style="margin: 20px 0;">
+                <h4>{{ video.title }}</h4>
+                {% if video.video_type == 'vk' and video.video_url %}
+                    <!-- Встраивание VK видео -->
+                    <div id="vk_video_{{ video.id }}"></div>
+                    <script>
+                        VK.Widgets.Playlist("vk_video_{{ video.id }}", {
+                            width: 800,
+                            height: 450
+                        }, {{ video.video_url|extract_vk_video_id }});
+                    </script>
+                {% elif video.video_type == 'rutube' and video.video_url %}
+                    <!-- Встраивание RuTube видео -->
+                    <iframe
+                        src="https://rutube.ru/play/embed/{{ video.video_url|extract_rutube_video_id }}"
+                        width="800"
+                        height="450"
+                        frameborder="0"
+                        allowfullscreen>
+                    </iframe>
+                {% elif video.video_type == 'uploaded' and video.video_path %}
+                    <!-- Загруженные видео -->
+                    <video controls width="800">
+                        <source src="{{ url_for('static', filename=video.video_path) }}" type="video/mp4">
+                        Ваш браузер не поддерживает видео.
+                    </video>
+                {% else %}
+                    <p>Не удалось загрузить видео</p>
+                {% endif %}
             </div>
-        </section>
+            {% endfor %}
+        </div>
         {% endif %}
 
         <!-- Текст новости -->

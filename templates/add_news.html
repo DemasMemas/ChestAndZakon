@@ -34,11 +34,11 @@
         <div id="videos-container">
             <div class="video-field">
                 <select name="video_types" onchange="toggleVideoInput(this)">
-                    <option value="youtube">YouTube</option>
-                    <option value="vimeo">Vimeo</option>
+                    <option value="vk">VK Видео</option>
+                    <option value="rutube">RuTube</option>
                     <option value="uploaded">Загрузить видеофайл</option>
                 </select>
-                <input type="url" name="video_urls" placeholder="URL видео (необязательно)" style="margin-left: 10px; width: 300px;" class="video-url">
+                <input type="url" name="video_urls" placeholder="URL видео (VK или RuTube)" style="margin-left: 10px; width: 300px;" class="video-url">
                 <input type="file" name="video_files" accept="video/*" style="margin-left: 10px; width: 300px; display: none;" class="video-file">
                 <input type="text" name="video_titles" placeholder="Название видео (необязательно)" style="margin-left: 10px; width: 200px;">
                 <button type="button" class="remove-video" onclick="removeVideoField(this)" style="margin-left: 10px; color: red;">✕</button>
@@ -77,11 +77,11 @@ function addVideoField() {
     newField.className = 'video-field';
     newField.innerHTML = `
         <select name="video_types" onchange="toggleVideoInput(this)">
-            <option value="youtube">YouTube</option>
-            <option value="vimeo">Vimeo</option>
+            <option value="vk">VK Видео</option>
+            <option value="rutube">RuTube</option>
             <option value="uploaded">Загрузить видеофайл</option>
         </select>
-        <input type="url" name="video_urls" placeholder="URL видео" style="margin-left: 10px; width: 300px;" class="video-url">
+        <input type="url" name="video_urls" placeholder="URL видео (VK или RuTube)" style="margin-left: 10px; width: 300px;" class="video-url">
         <input type="file" name="video_files" accept="video/*" style="margin-left: 10px; width: 300px; display: none;" class="video-file">
         <input type="text" name="video_titles" placeholder="Название видео" style="margin-left: 10px; width: 200px;">
         <button type="button" class="remove-video" onclick="removeVideoField(this)" style="margin-left: 10px; color: red;">✕</button>

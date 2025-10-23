@@ -598,12 +598,18 @@ def search():
 
 def extract_vk_params(url):
     """Извлекает параметры oid и id из VK URL для iframe"""
-    if 'vk.com' in url:
+    # Обрабатываем разные домены VK
+    vk_domains = ['vk.com', 'vkvideo.ru', 'm.vk.com']
+    is_vk_url = any(domain in url for domain in vk_domains)
+
+    if is_vk_url:
         # Обрабатываем разные форматы VK ссылок
         patterns = [
             r'video-?(\d+)_(\d+)',  # video-12345_67890 или video12345_67890
             r'video/(\d+)_(\d+)',  # video/12345_67890
-            r'video\.php\?.*?oid=([^&]+).*?id=([^&]+)'  # video.php?oid=...&id=...
+            r'video\.php\?.*?oid=([^&]+).*?id=([^&]+)',  # video.php?oid=...&id=...
+            r'video-(\d+)_(\d+)',  # video-12345_67890
+            r'video(\d+)_(\d+)'  # video12345_67890
         ]
 
         for pattern in patterns:
@@ -615,6 +621,7 @@ def extract_vk_params(url):
                     return f"oid={oid}&id={video_id}"
                 else:
                     return f"oid=-{oid}&id={video_id}"
+
     return None
 
 

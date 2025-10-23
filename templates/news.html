@@ -23,7 +23,7 @@
 
         {% if news.images %}
         <div class="card-img-container">
-            <img src="{{ url_for('static', filename=news.images[0].image_path) }}"
+            <img src="{{ url_for('uploaded_files', filename=news.images[0].image_path.split('/')[-1]) }}"
                  class="card-img-top"
                  alt="{{ news.title }}">
         </div>

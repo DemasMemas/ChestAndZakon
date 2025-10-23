@@ -31,8 +31,8 @@
     <div style="margin: 20px 0;">
         <label>Текущее изображение:</label>
         <div>
-            <img src="{{ url_for('static', filename=event.image_path) }}" 
-                 alt="{{ event.title }}" 
+            <img src="{{ url_for('uploaded_files', filename=event.image_path.split('/')[-1]) }}"
+                 alt="{{ event.title }}"
                  style="max-width: 300px; height: auto; margin: 10px 0;">
         </div>
     </div>

@@ -26,14 +26,11 @@
         <a href="{{ url_for('event_detail', event_id=event.id) }}" class="event-card-link"></a>
 
         {% if event.image_path %}
-        <div class="card-img-container">
-            <img src="{{ url_for('static', filename=event.image_path) }}"
-                 class="card-img-top"
-                 alt="{{ event.title }}">
-        </div>
-        {% else %}
-        <div class="card-img-container">
-            <i class="bi bi-calendar-event text-muted" style="font-size: 3rem;"></i>
+        <div class="text-center mb-4">
+            <img src="{{ url_for('uploaded_files', filename=event.image_path.split('/')[-1]) }}"
+                 alt="{{ event.title }}"
+                 class="img-fluid rounded shadow"
+                 style="max-height: 500px; object-fit: cover;">
         </div>
         {% endif %}
 

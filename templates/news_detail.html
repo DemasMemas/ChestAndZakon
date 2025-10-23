@@ -34,7 +34,7 @@
         <section class="mb-4">
             <h3 class="h4">Галерея ({{ news_item.images|length }} фото)</h3>
             <div class="row g-3">
-                {% for image in news.images %}
+                {% for image in news_item.images %}
                 <div style="position: relative; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
                     <img src="{{ url_for('uploaded_files', filename=image.image_path.split('/')[-1]) }}"
                          alt="Изображение {{ loop.index }}"

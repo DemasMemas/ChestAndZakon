@@ -7,7 +7,9 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
 
-    # Получаем строку подключения от Amvera
+    PREFERRED_URL_SCHEME = 'https'
+    PROXY_FIX = True
+
     DATABASE_URL = os.environ.get('DATABASE_URL')
 
     # ОБЯЗАТЕЛЬНО: проверяем что DATABASE_URL установлен

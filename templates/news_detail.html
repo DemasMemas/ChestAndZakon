@@ -34,13 +34,16 @@
         <section class="mb-4">
             <h3 class="h4">Галерея ({{ news_item.images|length }} фото)</h3>
             <div class="row g-3">
-                {% for image in news_item.images %}
-                <div class="col-md-4 col-lg-3">
-                    <img src="{{ url_for('static', filename=image.image_path) }}"
+                {% for image in news.images %}
+                <div style="position: relative; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+                    <img src="{{ url_for('uploaded_files', filename=image.image_path.split('/')[-1]) }}"
                          alt="Изображение {{ loop.index }}"
-                         class="img-thumbnail"
-                         style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;"
-                         onclick="openImageModal('{{ url_for('static', filename=image.image_path) }}')">
+                         style="width: 100%; height: 150px; object-fit: cover;">
+                    <div style="text-align: center; margin-top: 5px;">
+                        <a href="{{ url_for('delete_news_image', image_id=image.id) }}"
+                           onclick="return confirm('Удалить это изображение?')"
+                           style="color: #ff4444; font-size: 0.9em;">Удалить</a>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
@@ -55,27 +58,37 @@
             <div class="video-item" style="margin: 20px 0;">
                 <h4>{{ video.title }}</h4>
                 {% if video.video_type == 'vk' and video.video_url %}
-                    <!-- Встраивание VK видео -->
-                    <div id="vk_video_{{ video.id }}"></div>
-                    <script>
-                        VK.Widgets.Playlist("vk_video_{{ video.id }}", {
-                            width: 800,
-                            height: 450
-                        }, {{ video.video_url|extract_vk_video_id }});
-                    </script>
-                {% elif video.video_type == 'rutube' and video.video_url %}
-                    <!-- Встраивание RuTube видео -->
+                    <!-- Простой iframe для VK -->
+                    {% set vk_params = video.video_url|extract_vk_params %}
+                    {% if vk_params %}
                     <iframe
-                        src="https://rutube.ru/play/embed/{{ video.video_url|extract_rutube_video_id }}"
+                        src="https://vk.com/video_ext.php?{{ vk_params }}"
                         width="800"
                         height="450"
                         frameborder="0"
                         allowfullscreen>
                     </iframe>
+                    {% else %}
+                    <p>Неверная ссылка VK: {{ video.video_url }}</p>
+                    {% endif %}
+                {% elif video.video_type == 'rutube' and video.video_url %}
+                    <!-- Встраивание RuTube видео -->
+                    {% set rutube_id = video.video_url|extract_rutube_video_id %}
+                    {% if rutube_id %}
+                    <iframe
+                        src="https://rutube.ru/play/embed/{{ rutube_id }}"
+                        width="800"
+                        height="450"
+                        frameborder="0"
+                        allowfullscreen>
+                    </iframe>
+                    {% else %}
+                    <p>Неверная ссылка RuTube: {{ video.video_url }}</p>
+                    {% endif %}
                 {% elif video.video_type == 'uploaded' and video.video_path %}
                     <!-- Загруженные видео -->
                     <video controls width="800">
-                        <source src="{{ url_for('static', filename=video.video_path) }}" type="video/mp4">
+                        <source src="{{ url_for('uploaded_videos', filename=video.video_path.split('/')[-1]) }}" type="video/mp4">
                         Ваш браузер не поддерживает видео.
                     </video>
                 {% else %}

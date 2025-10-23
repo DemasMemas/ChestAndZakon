@@ -2,7 +2,7 @@ import os
 import re
 from datetime import datetime
 
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_mail import Mail, Message
 from werkzeug.utils import secure_filename
@@ -43,6 +43,14 @@ def allowed_file(filename):
 def allowed_video_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_VIDEO_EXTENSIONS
+
+@app.route('/data/uploads/<path:filename>')
+def uploaded_files(filename):
+    return send_from_directory('/data/uploads', filename)
+
+@app.route('/data/uploads/videos/<path:filename>')
+def uploaded_videos(filename):
+    return send_from_directory('/data/uploads/videos', filename)
 
 @app.context_processor
 def inject_models():
@@ -587,32 +595,55 @@ def search():
                            total_news=news_results.count(),
                            total_events=events_results.count())
 
-def extract_vk_video_id(url):
-    """Извлекает ID видео из VK URL"""
+
+def extract_vk_params(url):
+    """Извлекает параметры oid и id из VK URL для iframe"""
     if 'vk.com' in url:
-        # Ищем pattern like video-12345_12345 или video12345_12345
-        match = re.search(r'video-?(\d+_\d+)', url)
-        if match:
-            return match.group(1)
+        # Обрабатываем разные форматы VK ссылок
+        patterns = [
+            r'video-?(\d+)_(\d+)',  # video-12345_67890 или video12345_67890
+            r'video/(\d+)_(\d+)',  # video/12345_67890
+            r'video\.php\?.*?oid=([^&]+).*?id=([^&]+)'  # video.php?oid=...&id=...
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, url)
+            if match:
+                oid, video_id = match.groups()
+                # Если oid отрицательный (для групп), оставляем как есть
+                if oid.startswith('-'):
+                    return f"oid={oid}&id={video_id}"
+                else:
+                    return f"oid=-{oid}&id={video_id}"
     return None
+
 
 def extract_rutube_video_id(url):
     """Извлекает ID видео из RuTube URL"""
     if 'rutube.ru' in url:
-        # Ищем video ID в URL
-        match = re.search(r'video/([a-zA-Z0-9]+)/', url)
-        if match:
-            return match.group(1)
+        # Ищем video ID в разных форматах URL
+        patterns = [
+            r'video/([a-zA-Z0-9]+)/',  # .../video/abc123/
+            r'play/embed/([a-zA-Z0-9]+)',  # .../play/embed/abc123
+            r'video/([a-zA-Z0-9]+)\??'  # .../video/abc123?
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, url)
+            if match:
+                return match.group(1)
     return None
 
+
 # Регистрируем фильтры в Jinja2
-@app.template_filter('extract_vk_video_id')
-def extract_vk_video_id_filter(url):
-    return extract_vk_video_id(url)
+@app.template_filter('extract_vk_params')
+def extract_vk_params_filter(url):
+    return extract_vk_params(url)
 
 @app.template_filter('extract_rutube_video_id')
 def extract_rutube_video_id_filter(url):
     return extract_rutube_video_id(url)
+
 
 if __name__ == '__main__':
     with app.app_context():

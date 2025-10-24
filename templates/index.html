@@ -2,13 +2,91 @@
 
 {% block title %}Главная страница{% endblock %}
 
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                    url("{{ url_for('static', filename='images/hero-bg.jpg') }}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        color: white;
+        padding: 80px 0;
+        margin-bottom: 40px;
+        position: relative;
+    }
+
+    .logo-container {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .logo-img {
+        max-height: 120px;
+        width: auto;
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    }
+
+    /* Желтые кнопки */
+    .btn-primary {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #000;
+        font-weight: 600;
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus {
+        background-color: #e0a800;
+        border-color: #e0a800;
+        color: #000;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+    }
+
+    .btn-outline-primary {
+        color: #ffc107;
+        border-color: #ffc107;
+        font-weight: 600;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #000;
+        transform: translateY(-2px);
+    }
+
+    /* Специфические стили для кнопок в карточках */
+    .news-card .btn-outline-primary,
+    .event-card .btn-outline-primary {
+        color: #ffc107;
+        border-color: #ffc107;
+    }
+
+    .news-card .btn-outline-primary:hover,
+    .event-card .btn-outline-primary:hover {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #000;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Герой-секция -->
 <section class="hero-section">
     <div class="container text-center">
+        <!-- Логотип -->
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='images/vertical-logo.png') }}"
+                 alt="Логотип МОО Честь и Закон"
+                 class="logo-img">
+        </div>
+
         <h1 class="display-4 fw-bold mb-4">ЖИВИ ПО ЧЕСТИ, ПОСТУПАЙ ПО ЗАКОНУ</h1>
-        <p class="lead mb-4">ММЕЖРЕГИОНАЛЬНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ "СОЮЗ ВЕТЕРАНОВ ЛОКАЛЬНЫХ ВОЙН И ВОЕННЫХ КОНФЛИКТОВ "ЧЕСТЬ И ЗАКОН" </p>
-        <a href="{{ url_for('about') }}" class="btn btn-light btn-lg">Узнать больше о нас</a>
+        <p class="lead mb-4">МЕЖРЕГИОНАЛЬНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ "СОЮЗ ВЕТЕРАНОВ ЛОКАЛЬНЫХ ВОЙН И ВОЕННЫХ КОНФЛИКТОВ "ЧЕСТЬ И ЗАКОН"</p>
+        <a href="{{ url_for('about') }}" class="btn btn-primary btn-lg">Узнать больше о нас</a>
     </div>
 </section>
 
@@ -21,7 +99,7 @@
                     <h3 class="card-title h4 mb-3">Найдите нужную информацию</h3>
                     <form method="GET" action="{{ url_for('search') }}" class="mb-0">
                         <div class="input-group input-group-lg">
-                            <input type="text" name="q" class="form-control" 
+                            <input type="text" name="q" class="form-control"
                                    placeholder="Поиск по новостям и мероприятиям...">
                             <button class="btn btn-primary" type="submit">
                                 <i class="bi bi-search me-1"></i> Поиск
@@ -43,73 +121,73 @@
                 <a href="{{ url_for('news') }}" class="btn btn-outline-primary">Все новости</a>
             </div>
         </div>
-        
+
         <div class="row">
             {% set recent_news = News.query.order_by(News.created_at.desc()).limit(3).all() %}
             {% if recent_news %}
                 {% for news in recent_news %}
                 <div class="col-md-6 col-lg-4 mb-4">
-    <div class="card h-100 shadow-sm position-relative news-card">
-        <!-- Основная кликабельная область -->
-        <a href="{{ url_for('news_detail', news_id=news.id) }}" class="news-card-link"></a>
+                    <div class="card h-100 shadow-sm position-relative news-card">
+                        <!-- Основная кликабельная область -->
+                        <a href="{{ url_for('news_detail', news_id=news.id) }}" class="news-card-link"></a>
 
-        {% if news.images %}
-        <div class="card-img-container">
-            <img src="{{ url_for('uploaded_files', filename=news.images[0].image_path.split('/')[-1]) }}"
-                 class="card-img-top"
-                 alt="{{ news.title }}">
-        </div>
-        {% else %}
-        <div class="card-img-container">
-            <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
-        </div>
-        {% endif %}
+                        {% if news.images %}
+                        <div class="card-img-container">
+                            <img src="{{ url_for('uploaded_files', filename=news.images[0].image_path.split('/')[-1]) }}"
+                                 class="card-img-top"
+                                 alt="{{ news.title }}">
+                        </div>
+                        {% else %}
+                        <div class="card-img-container">
+                            <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                        </div>
+                        {% endif %}
 
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title">{{ news.title }}</h5>
-            <p class="card-text flex-grow-1">{{ news.content[:150] }}...</p>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ news.title }}</h5>
+                            <p class="card-text flex-grow-1">{{ news.content[:150] }}...</p>
 
-            <div class="mt-3">
-                {% if news.images and news.images|length > 1 %}
-                <span class="badge bg-secondary">
-                    <i class="bi bi-images"></i> +{{ news.images|length - 1 }}
-                </span>
-                {% endif %}
-                {% if news.videos %}
-                <span class="badge bg-info">
-                    <i class="bi bi-play-btn"></i> {{ news.videos|length }}
-                </span>
-                {% endif %}
-            </div>
+                            <div class="mt-3">
+                                {% if news.images and news.images|length > 1 %}
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-images"></i> +{{ news.images|length - 1 }}
+                                </span>
+                                {% endif %}
+                                {% if news.videos %}
+                                <span class="badge bg-info">
+                                    <i class="bi bi-play-btn"></i> {{ news.videos|length }}
+                                </span>
+                                {% endif %}
+                            </div>
 
-            <div class="mt-auto pt-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">
-                        <i class="bi bi-calendar"></i> {{ news.created_at.strftime('%d.%m.%Y') }}
-                    </small>
-                    <a href="{{ url_for('news_detail', news_id=news.id) }}" class="btn btn-outline-primary btn-sm position-relative">
-                        Читать далее
-                    </a>
-                </div>
+                            <div class="mt-auto pt-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar"></i> {{ news.created_at.strftime('%d.%m.%Y') }}
+                                    </small>
+                                    <a href="{{ url_for('news_detail', news_id=news.id) }}" class="btn btn-outline-primary btn-sm position-relative">
+                                        Читать далее
+                                    </a>
+                                </div>
 
-                {% if current_user.is_authenticated and current_user.is_admin %}
-                <div class="mt-2 pt-2 border-top position-relative">
-                    <div class="btn-group w-100" role="group">
-                        <a href="{{ url_for('edit_news', news_id=news.id) }}" class="btn btn-warning btn-sm">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <a href="{{ url_for('delete_news', news_id=news.id) }}"
-                           class="btn btn-danger btn-sm"
-                           onclick="return confirm('Удалить эту новость? Все комментарии и медиафайлы также будут удалены.')">
-                            <i class="bi bi-trash"></i>
-                        </a>
+                                {% if current_user.is_authenticated and current_user.is_admin %}
+                                <div class="mt-2 pt-2 border-top position-relative">
+                                    <div class="btn-group w-100" role="group">
+                                        <a href="{{ url_for('edit_news', news_id=news.id) }}" class="btn btn-warning btn-sm">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{{ url_for('delete_news', news_id=news.id) }}"
+                                           class="btn btn-danger btn-sm"
+                                           onclick="return confirm('Удалить эту новость? Все комментарии и медиафайлы также будут удалены.')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
                 {% endfor %}
             {% else %}
                 <div class="col-12">
@@ -119,7 +197,7 @@
                             <h3 class="h4">Пока нет новостей</h3>
                             <p class="text-muted">Новости появятся здесь в ближайшее время.</p>
                             {% if current_user.is_authenticated and current_user.is_admin %}
-                            <a href="{{ url_for('add_news') }}" class="btn btn-success">
+                            <a href="{{ url_for('add_news') }}" class="btn btn-primary">
                                 <i class="bi bi-plus-circle me-1"></i> Добавить первую новость
                             </a>
                             {% endif %}
@@ -140,54 +218,54 @@
                 <a href="{{ url_for('events') }}" class="btn btn-outline-primary">Все мероприятия</a>
             </div>
         </div>
-        
+
         <div class="row">
             {% set upcoming_events = Event.query.filter(Event.event_date >= now).order_by(Event.event_date.asc()).limit(3).all() %}
             {% if upcoming_events %}
                 {% for event in upcoming_events %}
                 <div class="col-lg-4 col-md-6 mb-4">
-    <div class="card h-100 shadow-sm position-relative event-card">
-        <!-- Основная кликабельная область -->
-        <a href="{{ url_for('event_detail', event_id=event.id) }}" class="event-card-link"></a>
+                    <div class="card h-100 shadow-sm position-relative event-card">
+                        <!-- Основная кликабельная область -->
+                        <a href="{{ url_for('event_detail', event_id=event.id) }}" class="event-card-link"></a>
 
-        {% if event.image_path %}
-        <div class="card-img-container">
-            <img src="{{ url_for('uploaded_files', filename=event.image_path.split('/')[-1]) }}"
-                 class="card-img-top"
-                 alt="{{ event.title }}">
-        </div>
-        {% else %}
-        <div class="card-img-container">
-            <i class="bi bi-calendar-event text-muted" style="font-size: 3rem;"></i>
-        </div>
-        {% endif %}
+                        {% if event.image_path %}
+                        <div class="card-img-container">
+                            <img src="{{ url_for('uploaded_files', filename=event.image_path.split('/')[-1]) }}"
+                                 class="card-img-top"
+                                 alt="{{ event.title }}">
+                        </div>
+                        {% else %}
+                        <div class="card-img-container">
+                            <i class="bi bi-calendar-event text-muted" style="font-size: 3rem;"></i>
+                        </div>
+                        {% endif %}
 
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title">{{ event.title }}</h5>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ event.title }}</h5>
 
-            <div class="mb-3">
-                <small class="text-muted d-block">
-                    <i class="bi bi-calendar-event me-1"></i> {{ event.event_date.strftime('%d.%m.%Y в %H:%M') }}
-                </small>
-                {% if event.location %}
-                <small class="text-muted d-block">
-                    <i class="bi bi-geo-alt me-1"></i> {{ event.location }}
-                </small>
-                {% endif %}
-            </div>
+                            <div class="mb-3">
+                                <small class="text-muted d-block">
+                                    <i class="bi bi-calendar-event me-1"></i> {{ event.event_date.strftime('%d.%m.%Y в %H:%M') }}
+                                </small>
+                                {% if event.location %}
+                                <small class="text-muted d-block">
+                                    <i class="bi bi-geo-alt me-1"></i> {{ event.location }}
+                                </small>
+                                {% endif %}
+                            </div>
 
-            <p class="card-text flex-grow-1">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</p>
+                            <p class="card-text flex-grow-1">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</p>
 
-            <div class="mt-auto pt-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-primary btn-sm position-relative">
-                        Подробнее
-                    </a>
+                            <div class="mt-auto pt-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-primary btn-sm position-relative">
+                                        Подробнее
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
                 {% endfor %}
             {% else %}
                 <div class="col-12">
@@ -197,7 +275,7 @@
                             <h3 class="h4">Нет запланированных мероприятий</h3>
                             <p class="text-muted">Следите за обновлениями, скоро появятся новые мероприятия.</p>
                             {% if current_user.is_authenticated and current_user.is_admin %}
-                            <a href="{{ url_for('add_event') }}" class="btn btn-success">
+                            <a href="{{ url_for('add_event') }}" class="btn btn-primary">
                                 <i class="bi bi-plus-circle me-1"></i> Добавить первое мероприятие
                             </a>
                             {% endif %}

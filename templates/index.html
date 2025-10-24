@@ -6,8 +6,8 @@
 <!-- Герой-секция -->
 <section class="hero-section">
     <div class="container text-center">
-        <h1 class="display-4 fw-bold mb-4">Добро пожаловать в нашу организацию</h1>
-        <p class="lead mb-4">Мы занимаемся важными делами и делаем мир лучше</p>
+        <h1 class="display-4 fw-bold mb-4">ЖИВИ ПО ЧЕСТИ, ПОСТУПАЙ ПО ЗАКОНУ</h1>
+        <p class="lead mb-4">ММЕЖРЕГИОНАЛЬНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ "СОЮЗ ВЕТЕРАНОВ ЛОКАЛЬНЫХ ВОЙН И ВОЕННЫХ КОНФЛИКТОВ "ЧЕСТЬ И ЗАКОН" </p>
         <a href="{{ url_for('about') }}" class="btn btn-light btn-lg">Узнать больше о нас</a>
     </div>
 </section>
@@ -209,18 +209,18 @@
     </section>
 
     <!-- Призыв к действию -->
-    <section class="my-5 py-5 bg-light rounded-3">
-        <div class="container text-center">
-            <h2 class="h1 mb-3">Присоединяйтесь к нам</h2>
-            <p class="lead mb-4">Станьте частью нашего сообщества и вместе мы сможем достичь большего.</p>
-            <div class="d-flex flex-wrap justify-content-center gap-3">
-                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">
-                    <i class="bi bi-envelope me-2"></i> Связаться с нами
-                </a>
-                <a href="{{ url_for('about') }}" class="btn btn-outline-primary btn-lg">
-                    <i class="bi bi-info-circle me-2"></i> Узнать больше
-                </a>
-            </div>
+    <section class="text-center py-5 bg-light rounded">
+        <h3 class="h2 mb-3">Обращайтесь к нам!</h3>
+        <p class="lead mb-4">
+            Мы сделаем всё возможное, чтобы Вам помочь.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">
+                <i class="bi bi-envelope"></i> Связаться с нами
+            </a>
+            <a href="{{ url_for('events') }}" class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-calendar-event"></i> Посмотреть мероприятия
+            </a>
         </div>
     </section>
 </div>
